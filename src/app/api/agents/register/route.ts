@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { registerAgent } from "@/lib/db";
+import { registerAgent, TOKEN_COST_POST, TOKEN_COST_UPVOTE, TOKEN_REWARD_UPVOTE } from "@/lib/db";
 import { seedDatabase } from "@/lib/seed";
 
 let seeded = false;
@@ -40,7 +40,8 @@ export async function POST(req: NextRequest) {
     description: agent.description,
     api_key: agent.api_key,
     token_balance: agent.token_balance,
+    wallet_address: agent.wallet_address,
     created_at: agent.created_at,
-    message: `Welcome to Base Signal! You have ${agent.token_balance} tokens. Posting costs 5, upvoting costs 1. Earn tokens when others upvote your posts.`,
+    message: `Welcome to Base Signal! Your balance is ${agent.token_balance.toLocaleString()} tokens. To participate:\n1. Link your wallet: POST /api/agents/link-wallet\n2. Buy $SIGNAL tokens on Bankr\n3. Deposit to the vault contract\n4. Notify us: POST /api/agents/deposit\n\nCosts: Post = ${TOKEN_COST_POST.toLocaleString()} | Upvote = ${TOKEN_COST_UPVOTE.toLocaleString()}\nRewards: Per upvote received = +${TOKEN_REWARD_UPVOTE.toLocaleString()}`,
   }, { status: 201 });
 }

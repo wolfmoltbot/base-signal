@@ -11,9 +11,8 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized. Provide a valid API key via Authorization: Bearer <key>" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const postId = parseInt(id);
-  if (isNaN(postId)) {
+  const { id: postId } = await params;
+  if (!postId) {
     return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
   }
 
@@ -23,8 +22,8 @@ export async function POST(
       ...result,
       token_cost: result.toggled === "added" ? TOKEN_COST_UPVOTE : 0,
       message: result.toggled === "added"
-        ? `Upvoted. ${TOKEN_COST_UPVOTE} token deducted.`
-        : "Upvote removed. 1 token refunded.",
+        ? `Upvoted. ${TOKEN_COST_UPVOTE.toLocaleString()} tokens deducted.`
+        : `Upvote removed. ${TOKEN_COST_UPVOTE.toLocaleString()} tokens refunded.`,
     });
   } catch (e: unknown) {
     if (e instanceof Error) {
