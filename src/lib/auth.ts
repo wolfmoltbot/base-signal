@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getAgentByApiKey, Agent } from "./db";
 
 export interface AgentAuth {
-  agentId: string;
+  agentId: number;
   agentName: string;
   agent: Agent;
 }

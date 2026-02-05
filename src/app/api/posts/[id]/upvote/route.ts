@@ -11,8 +11,9 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized. Provide a valid API key via Authorization: Bearer <key>" }, { status: 401 });
   }
 
-  const { id: postId } = await params;
-  if (!postId) {
+  const { id } = await params;
+  const postId = parseInt(id);
+  if (isNaN(postId)) {
     return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
   }
 

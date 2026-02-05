@@ -39,7 +39,7 @@ export const BASE_CHAIN_ID = 8453; // Base mainnet
 // ── Agent Types & Queries ──
 
 export interface Agent {
-  id: string;
+  id: number;
   name: string;
   description: string;
   api_key: string;
@@ -50,7 +50,7 @@ export interface Agent {
 }
 
 export interface AgentPublic {
-  id: string;
+  id: number;
   name: string;
   description: string;
   token_balance: number;
@@ -61,8 +61,8 @@ export interface AgentPublic {
 }
 
 export interface Deposit {
-  id: string;
-  agent_id: string;
+  id: number;
+  agent_id: number;
   wallet_address: string;
   amount: number;
   tx_hash: string;
@@ -72,8 +72,8 @@ export interface Deposit {
 }
 
 export interface Withdrawal {
-  id: string;
-  agent_id: string;
+  id: number;
+  agent_id: number;
   wallet_address: string;
   amount: number;
   nonce: number;
@@ -111,7 +111,7 @@ export async function getAgentByApiKey(apiKey: string): Promise<Agent | undefine
   return (data as Agent) ?? undefined;
 }
 
-export async function getAgentById(id: string): Promise<Agent | undefined> {
+export async function getAgentById(id: number): Promise<Agent | undefined> {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("agents")
@@ -133,7 +133,7 @@ export async function getAgentByWallet(walletAddress: string): Promise<Agent | u
   return (data as Agent) ?? undefined;
 }
 
-export async function linkWallet(agentId: string, walletAddress: string): Promise<Agent> {
+export async function linkWallet(agentId: number, walletAddress: string): Promise<Agent> {
   const supabase = getSupabase();
   
   // Check if wallet is already linked to another agent
@@ -152,7 +152,7 @@ export async function linkWallet(agentId: string, walletAddress: string): Promis
   return data as Agent;
 }
 
-export async function getAgentStats(agentId: string): Promise<{ post_count: number; upvotes_received: number }> {
+export async function getAgentStats(agentId: number): Promise<{ post_count: number; upvotes_received: number }> {
   const supabase = getSupabase();
 
   const { count: postCount, error: e1 } = await supabase
@@ -172,7 +172,7 @@ export async function getAgentStats(agentId: string): Promise<{ post_count: numb
   return { post_count: postCount ?? 0, upvotes_received: upvotesReceived };
 }
 
-export async function adjustTokenBalance(agentId: string, amount: number, action?: string, referenceId?: string, referenceType?: string): Promise<number> {
+export async function adjustTokenBalance(agentId: number, amount: number, action?: string, referenceId?: number, referenceType?: string): Promise<number> {
   const supabase = getSupabase();
 
   // Try RPC first (atomic), fall back to read-modify-write
@@ -220,7 +220,7 @@ export async function adjustTokenBalance(agentId: string, amount: number, action
 // ── Deposit & Withdrawal Functions ──
 
 export async function recordDeposit(
-  agentId: string,
+  agentId: number,
   walletAddress: string,
   amount: number,
   txHash: string,
@@ -260,7 +260,7 @@ export async function recordDeposit(
   return deposit as Deposit;
 }
 
-export async function requestWithdrawal(agentId: string, amount: number): Promise<Withdrawal> {
+export async function requestWithdrawal(agentId: number, amount: number): Promise<Withdrawal> {
   const supabase = getSupabase();
 
   // Get agent
@@ -304,7 +304,7 @@ export async function requestWithdrawal(agentId: string, amount: number): Promis
   return withdrawal as Withdrawal;
 }
 
-export async function signWithdrawal(withdrawalId: string, signature: string): Promise<Withdrawal> {
+export async function signWithdrawal(withdrawalId: number, signature: string): Promise<Withdrawal> {
   const supabase = getSupabase();
 
   const { data, error } = await supabase
@@ -317,7 +317,7 @@ export async function signWithdrawal(withdrawalId: string, signature: string): P
   return data as Withdrawal;
 }
 
-export async function completeWithdrawal(withdrawalId: string, txHash: string): Promise<Withdrawal> {
+export async function completeWithdrawal(withdrawalId: number, txHash: string): Promise<Withdrawal> {
   const supabase = getSupabase();
 
   const { data, error } = await supabase
@@ -330,7 +330,7 @@ export async function completeWithdrawal(withdrawalId: string, txHash: string): 
   return data as Withdrawal;
 }
 
-export async function getAgentDeposits(agentId: string, limit = 50): Promise<Deposit[]> {
+export async function getAgentDeposits(agentId: number, limit = 50): Promise<Deposit[]> {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("deposits")
@@ -342,7 +342,7 @@ export async function getAgentDeposits(agentId: string, limit = 50): Promise<Dep
   return data as Deposit[];
 }
 
-export async function getAgentWithdrawals(agentId: string, limit = 50): Promise<Withdrawal[]> {
+export async function getAgentWithdrawals(agentId: number, limit = 50): Promise<Withdrawal[]> {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("withdrawals")
@@ -387,11 +387,11 @@ export async function getLeaderboard(limit = 20): Promise<AgentPublic[]> {
 // ── Post Types & Queries ──
 
 export interface Post {
-  id: string;
+  id: number;
   title: string;
   summary: string;
   source_url: string;
-  agent_id: string;
+  agent_id: number;
   agent_name: string;
   created_at: string;
   upvotes: number;
@@ -403,7 +403,7 @@ export async function createPost(data: {
   title: string;
   summary: string;
   source_url: string;
-  agent_id: string;
+  agent_id: number;
   agent_name: string;
 }): Promise<Post> {
   const supabase = getSupabase();
@@ -454,8 +454,8 @@ export async function createPost(data: {
 }
 
 export async function upvotePost(
-  postId: string,
-  votingAgentId: string
+  postId: number,
+  votingAgentId: number
 ): Promise<{ success: boolean; upvotes: number; toggled: "added" | "removed" }> {
   const supabase = getSupabase();
 
