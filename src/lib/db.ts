@@ -20,16 +20,25 @@ export function getSupabase(): SupabaseClient {
 }
 
 // ── Token Economy Constants ──
-// Designed for 100B total supply, high transaction volume
+// Free to post/upvote, rewards distributed by epoch
 
-export const TOKEN_COST_POST = 50_000;           // Cost to post a signal
-export const TOKEN_COST_UPVOTE = 5_000;          // Cost to upvote
-export const TOKEN_REWARD_UPVOTE = 25_000;       // Reward per upvote received
+export const TOKEN_COST_POST = 0;                // FREE - no cost to post
+export const TOKEN_COST_UPVOTE = 0;              // FREE - no cost to upvote
+export const TOKEN_REWARD_UPVOTE = 0;            // Rewards via epoch, not per-upvote
 export const TOKEN_BONUS_DAILY_TOP = 1_000_000;  // Daily top post bonus
 export const TOKEN_BONUS_TRENDING = 500_000;     // Trending post bonus
 export const TOKEN_BONUS_EARLY_UPVOTER = 10_000; // Early upvoter bonus
 export const EARLY_UPVOTER_COUNT = 5;            // First N upvoters get bonus
 export const EARLY_BONUS_THRESHOLD = 10;         // Upvotes needed to trigger early bonus
+
+// ── Rate Limits ──
+export const MAX_POSTS_PER_DAY = 10;             // Max posts per agent per day
+export const MAX_UPVOTES_PER_DAY = 50;           // Max upvotes per agent per day
+
+// ── Epoch Rewards ──
+export const EPOCH_DURATION_HOURS = 24;          // Daily epochs
+export const EPOCH_REWARD_POOL = 10_000_000;     // 10M tokens per epoch
+export const EPOCH_TOP_POSTS = 10;               // Top 10 posts split the pool
 
 // Contract addresses (to be updated after deployment)
 export const VAULT_CONTRACT_ADDRESS = process.env.VAULT_CONTRACT_ADDRESS || "";
@@ -400,6 +409,40 @@ export interface Post {
   agent_token_balance?: number;
 }
 
+// Check rate limit for posts
+async function checkPostRateLimit(agentId: number): Promise<{ allowed: boolean; postsToday: number }> {
+  const supabase = getSupabase();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const { count, error } = await supabase
+    .from("posts")
+    .select("*", { count: "exact", head: true })
+    .eq("agent_id", agentId)
+    .gte("created_at", today.toISOString());
+  
+  if (error) throw new Error(`Failed to check rate limit: ${error.message}`);
+  const postsToday = count ?? 0;
+  return { allowed: postsToday < MAX_POSTS_PER_DAY, postsToday };
+}
+
+// Check rate limit for upvotes
+async function checkUpvoteRateLimit(agentId: number): Promise<{ allowed: boolean; upvotesToday: number }> {
+  const supabase = getSupabase();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const { count, error } = await supabase
+    .from("upvotes")
+    .select("*", { count: "exact", head: true })
+    .eq("agent_id", agentId)
+    .gte("created_at", today.toISOString());
+  
+  if (error) throw new Error(`Failed to check rate limit: ${error.message}`);
+  const upvotesToday = count ?? 0;
+  return { allowed: upvotesToday < MAX_UPVOTES_PER_DAY, upvotesToday };
+}
+
 export async function createPost(data: {
   title: string;
   summary: string;
@@ -409,21 +452,13 @@ export async function createPost(data: {
 }): Promise<Post> {
   const supabase = getSupabase();
 
-  // Check balance
-  const { data: agent, error: agentErr } = await supabase
-    .from("agents")
-    .select("token_balance")
-    .eq("id", data.agent_id)
-    .single();
-  if (agentErr || !agent) throw new Error("Agent not found");
-  if (agent.token_balance < TOKEN_COST_POST) {
-    throw new Error(`Insufficient tokens. Need ${TOKEN_COST_POST.toLocaleString()}, have ${agent.token_balance.toLocaleString()}`);
+  // Check rate limit (FREE posting, but limited per day)
+  const { allowed, postsToday } = await checkPostRateLimit(data.agent_id);
+  if (!allowed) {
+    throw new Error(`Rate limit exceeded. You've posted ${postsToday}/${MAX_POSTS_PER_DAY} times today. Try again tomorrow.`);
   }
 
-  // Deduct tokens
-  await adjustTokenBalance(data.agent_id, -TOKEN_COST_POST, "post", undefined, "post");
-
-  // Insert post
+  // Insert post (FREE - no token cost)
   const { data: post, error: postErr } = await supabase
     .from("posts")
     .insert({
@@ -436,20 +471,8 @@ export async function createPost(data: {
     .select()
     .single();
   if (postErr) {
-    // Refund tokens on failure
-    await adjustTokenBalance(data.agent_id, TOKEN_COST_POST, "post_refund", undefined, "post");
     throw new Error(`Failed to create post: ${postErr.message}`);
   }
-
-  // Update transaction with reference
-  await supabase
-    .from("token_transactions")
-    .update({ reference_id: post.id })
-    .eq("agent_id", data.agent_id)
-    .eq("action", "post")
-    .is("reference_id", null)
-    .order("created_at", { ascending: false })
-    .limit(1);
 
   return post as Post;
 }
@@ -477,30 +500,20 @@ export async function upvotePost(
     .maybeSingle();
 
   if (existingVote) {
-    // Toggle off — remove upvote
+    // Toggle off — remove upvote (always allowed, no rate limit for removing)
     await supabase.from("upvotes").delete().eq("post_id", postId).eq("agent_id", votingAgentId);
 
     // Decrement post upvotes
     const newUpvotes = Math.max(0, post.upvotes - 1);
     await supabase.from("posts").update({ upvotes: newUpvotes }).eq("id", postId);
 
-    // Refund voter
-    await adjustTokenBalance(votingAgentId, TOKEN_COST_UPVOTE, "upvote_refund", postId, "upvote");
-
-    // Remove reward from post author
-    await adjustTokenBalance(post.agent_id, -TOKEN_REWARD_UPVOTE, "upvote_reward_removed", postId, "upvote");
-
     return { success: true, upvotes: newUpvotes, toggled: "removed" };
   }
 
-  // Adding upvote — check balance
-  const { data: voter } = await supabase
-    .from("agents")
-    .select("token_balance")
-    .eq("id", votingAgentId)
-    .single();
-  if (!voter || voter.token_balance < TOKEN_COST_UPVOTE) {
-    throw new Error(`Insufficient tokens. Need ${TOKEN_COST_UPVOTE.toLocaleString()}, have ${(voter?.token_balance ?? 0).toLocaleString()}`);
+  // Adding upvote — check rate limit (FREE but limited)
+  const { allowed, upvotesToday } = await checkUpvoteRateLimit(votingAgentId);
+  if (!allowed) {
+    throw new Error(`Rate limit exceeded. You've upvoted ${upvotesToday}/${MAX_UPVOTES_PER_DAY} times today.`);
   }
 
   // Cannot upvote own post
@@ -508,7 +521,7 @@ export async function upvotePost(
     throw new Error("Cannot upvote your own post");
   }
 
-  // Insert upvote
+  // Insert upvote (FREE - no token cost)
   const { error: insertErr } = await supabase
     .from("upvotes")
     .insert({ post_id: postId, agent_id: votingAgentId });
@@ -517,26 +530,6 @@ export async function upvotePost(
   // Increment post upvotes
   const newUpvotes = post.upvotes + 1;
   await supabase.from("posts").update({ upvotes: newUpvotes }).eq("id", postId);
-
-  // Deduct from voter
-  await adjustTokenBalance(votingAgentId, -TOKEN_COST_UPVOTE, "upvote", postId, "upvote");
-
-  // Reward post author
-  await adjustTokenBalance(post.agent_id, TOKEN_REWARD_UPVOTE, "upvote_reward", postId, "upvote");
-
-  // Check early upvoter bonus
-  if (newUpvotes === EARLY_BONUS_THRESHOLD) {
-    const { data: earlyUpvoters } = await supabase
-      .from("upvotes")
-      .select("agent_id")
-      .eq("post_id", postId)
-      .order("created_at", { ascending: true })
-      .limit(EARLY_UPVOTER_COUNT);
-
-    for (const u of earlyUpvoters ?? []) {
-      await adjustTokenBalance(u.agent_id, TOKEN_BONUS_EARLY_UPVOTER, "early_upvoter_bonus", postId, "bonus");
-    }
-  }
 
   return { success: true, upvotes: newUpvotes, toggled: "added" };
 }

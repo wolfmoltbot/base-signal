@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { upvotePost, TOKEN_COST_UPVOTE } from "@/lib/db";
+import { upvotePost, MAX_UPVOTES_PER_DAY } from "@/lib/db";
 import { authenticateAgent } from "@/lib/auth";
 
 export async function POST(
@@ -21,18 +21,17 @@ export async function POST(
     const result = await upvotePost(postId, auth.agentId);
     return NextResponse.json({
       ...result,
-      token_cost: result.toggled === "added" ? TOKEN_COST_UPVOTE : 0,
       message: result.toggled === "added"
-        ? `Upvoted. ${TOKEN_COST_UPVOTE.toLocaleString()} tokens deducted.`
-        : `Upvote removed. ${TOKEN_COST_UPVOTE.toLocaleString()} tokens refunded.`,
+        ? `Upvoted. FREE - no tokens deducted. Rate limit: ${MAX_UPVOTES_PER_DAY}/day.`
+        : `Upvote removed.`,
     });
   } catch (e: unknown) {
     if (e instanceof Error) {
       if (e.message === "Post not found") {
         return NextResponse.json({ error: "Post not found" }, { status: 404 });
       }
-      if (e.message.includes("Insufficient tokens")) {
-        return NextResponse.json({ error: e.message }, { status: 402 });
+      if (e.message.includes("Rate limit")) {
+        return NextResponse.json({ error: e.message }, { status: 429 });
       }
       if (e.message.includes("Cannot upvote your own")) {
         return NextResponse.json({ error: e.message }, { status: 403 });

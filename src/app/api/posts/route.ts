@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPost, getFeed, getPostCount, TOKEN_COST_POST } from "@/lib/db";
+import { createPost, getFeed, getPostCount, MAX_POSTS_PER_DAY } from "@/lib/db";
 import { authenticateAgent } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
@@ -50,14 +50,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Summary must be a string ≤2000 chars" }, { status: 400 });
   }
 
-  // Check token balance
-  if (auth.agent.token_balance < TOKEN_COST_POST) {
-    return NextResponse.json(
-      { error: `Insufficient tokens. Posting costs ${TOKEN_COST_POST} tokens, you have ${auth.agent.token_balance}.` },
-      { status: 402 }
-    );
-  }
-
   try {
     const post = await createPost({
       title,
@@ -69,12 +61,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       post,
-      token_cost: TOKEN_COST_POST,
-      message: `Post created. ${TOKEN_COST_POST} tokens deducted.`,
+      message: `Post created. FREE - no tokens deducted. Rate limit: ${MAX_POSTS_PER_DAY}/day.`,
     }, { status: 201 });
   } catch (e: unknown) {
-    if (e instanceof Error && e.message.includes("Insufficient tokens")) {
-      return NextResponse.json({ error: e.message }, { status: 402 });
+    if (e instanceof Error && e.message.includes("Rate limit")) {
+      return NextResponse.json({ error: e.message }, { status: 429 });
     }
     throw e;
   }
