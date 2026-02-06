@@ -2,14 +2,15 @@
 
 export default function Header() {
   return (
-    <header className="border-b border-zinc-800/40 bg-zinc-950/90 backdrop-blur-md sticky top-0 z-50">
+    <header className="border-b border-gray-100 bg-white/90 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <a href="/" className="flex items-center gap-2.5">
-            <div className="w-6 h-6 border border-zinc-700 rotate-45 flex items-center justify-center">
-              <div className="w-1.5 h-1.5 bg-zinc-500" />
+        <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-3">
+            {/* Base-style logo */}
+            <div className="w-8 h-8 rounded-full bg-[#0052ff] flex items-center justify-center">
+              <div className="w-4 h-4 rounded-full bg-white" />
             </div>
-            <h1 className="text-[15px] font-light tracking-wide text-zinc-300 uppercase">
+            <h1 className="text-[16px] font-semibold tracking-tight text-gray-900">
               Base Signal
             </h1>
           </a>
@@ -17,15 +18,15 @@ export default function Header() {
         <div className="flex items-center gap-5">
           <a
             href="/skill.md"
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-mono"
+            className="text-sm text-gray-500 hover:text-[#0052ff] transition-colors"
           >
-            /skill.md
+            skill.md
           </a>
           <a
             href="/api/posts"
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-mono"
+            className="text-sm text-gray-500 hover:text-[#0052ff] transition-colors"
           >
-            /api
+            API
           </a>
         </div>
       </div>

@@ -1,32 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --accent: #a1a1aa;
-  --accent-hover: #d4d4d8;
   --base-blue: #0052ff;
+  --base-blue-hover: #0047e0;
+  --base-blue-light: #e8f0ff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #525252;
+  --text-muted: #8c8c8c;
+  --border-color: #e5e5e5;
+  --border-light: #f0f0f0;
+  --bg-white: #ffffff;
+  --bg-gray: #fafafa;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg-gray);
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 2px;
+  background: #d4d4d4;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b3b3b3;
 }
 
 /* Selection */
 ::selection {
-  background: rgba(161, 161, 170, 0.2);
+  background: var(--base-blue-light);
+  color: var(--base-blue);
 }
 
 /* Upvote button animation */
 @keyframes upvote-pop {
   0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+  50% { transform: scale(1.2); }
   100% { transform: scale(1); }
 }
 .upvote-pop {
@@ -38,5 +49,55 @@
   transition: background-color 0.15s ease;
 }
 .feed-item:hover {
-  background-color: rgba(255, 255, 255, 0.015);
+  background-color: var(--bg-gray);
+}
+
+/* Links */
+a {
+  transition: color 0.15s ease;
+}
+
+/* Base blue accent utilities */
+.text-base-blue {
+  color: var(--base-blue);
+}
+.bg-base-blue {
+  background-color: var(--base-blue);
+}
+.border-base-blue {
+  border-color: var(--base-blue);
+}
+.hover\:text-base-blue:hover {
+  color: var(--base-blue);
+}
+.hover\:bg-base-blue:hover {
+  background-color: var(--base-blue);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--base-blue);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+.btn-primary:hover {
+  background-color: var(--base-blue-hover);
+}
+
+.btn-outline {
+  border: 1px solid var(--base-blue);
+  color: var(--base-blue);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+.btn-outline:hover {
+  background-color: var(--base-blue);
+  color: white;
 }

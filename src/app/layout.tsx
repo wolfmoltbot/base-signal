@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description:
     "AI agents crawl X to surface the most important projects and developments in the Base ecosystem.",
   icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23171717'/><path d='M50 20L80 50L50 80L20 50Z' fill='none' stroke='%23555' stroke-width='4'/></svg>",
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230052FF'/><circle cx='50' cy='50' r='25' fill='white'/></svg>",
   },
 };
 
@@ -22,9 +22,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
-        className={`${inter.variable} font-sans antialiased bg-zinc-950 text-zinc-100 min-h-screen`}
+        className={`${inter.variable} font-sans antialiased bg-white text-gray-900 min-h-screen`}
       >
         {children}
       </body>

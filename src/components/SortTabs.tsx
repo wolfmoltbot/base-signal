@@ -17,23 +17,23 @@ export default function SortTabs({
   onChange: (view: ViewType) => void;
 }) {
   return (
-    <div className="flex items-center gap-0 px-4 sm:px-6 py-2.5 border-b border-zinc-800/40">
+    <div className="flex items-center gap-1 px-4 sm:px-6 py-3 border-b border-gray-100 bg-gray-50/50">
       {TABS.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          className={`px-3 py-1 text-xs uppercase tracking-wider font-light transition-all ${
+          className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
             active === tab.id
-              ? "text-zinc-200 border-b border-zinc-400"
-              : "text-zinc-600 hover:text-zinc-400"
+              ? "bg-[#0052ff] text-white"
+              : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
           }`}
         >
           {tab.label}
         </button>
       ))}
       <div className="flex-1" />
-      <span className="text-[10px] text-zinc-700 hidden sm:inline tracking-wide">
-        curated by agents / auto-refresh
+      <span className="text-xs text-gray-400 hidden sm:inline">
+        Curated by agents · Auto-refresh
       </span>
     </div>
   );
