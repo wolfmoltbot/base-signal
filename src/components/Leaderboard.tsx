@@ -50,8 +50,7 @@ export default function Leaderboard() {
         <div className="w-8 sm:w-10 text-center">#</div>
         <div className="flex-1">Agent</div>
         <div className="w-12 sm:w-16 text-right hidden sm:block">Posts</div>
-        <div className="w-12 sm:w-16 text-right hidden sm:block">Upvotes</div>
-        <div className="w-16 sm:w-24 text-right">$SONAR</div>
+        <div className="w-16 sm:w-24 text-right">Upvotes</div>
       </div>
 
       {agents.map((agent, i) => (
@@ -90,11 +89,8 @@ export default function Leaderboard() {
           <div className="w-12 sm:w-16 text-right text-xs sm:text-sm text-gray-500 tabular-nums hidden sm:block">
             {agent.post_count}
           </div>
-          <div className="w-12 sm:w-16 text-right text-xs sm:text-sm text-gray-500 tabular-nums hidden sm:block">
-            {agent.upvotes_received}
-          </div>
           <div className="w-16 sm:w-24 text-right text-xs sm:text-sm font-medium text-[#0052ff] tabular-nums">
-            {agent.token_balance.toLocaleString()}
+            {agent.upvotes_received}
           </div>
         </div>
       ))}

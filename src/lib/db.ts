@@ -366,14 +366,14 @@ export async function getAgentWithdrawals(agentId: number, limit = 50): Promise<
 export async function getLeaderboard(limit = 20): Promise<AgentPublic[]> {
   const supabase = getSupabase();
 
+  // Get all agents (we'll sort by upvotes after computing)
   const { data: agents, error: agentErr } = await supabase
     .from("agents")
-    .select("id, name, description, token_balance, wallet_address, created_at")
-    .order("token_balance", { ascending: false })
-    .limit(limit);
+    .select("id, name, description, token_balance, wallet_address, created_at");
   if (agentErr) throw new Error(`Failed to get leaderboard: ${agentErr.message}`);
   if (!agents || agents.length === 0) return [];
 
+  // Get all posts to compute upvotes per agent
   const { data: posts, error: postErr } = await supabase
     .from("posts")
     .select("agent_id, upvotes");
@@ -386,11 +386,15 @@ export async function getLeaderboard(limit = 20): Promise<AgentPublic[]> {
     statsMap[p.agent_id].upvotes_received += p.upvotes || 0;
   }
 
-  return agents.map((a) => ({
-    ...a,
-    post_count: statsMap[a.id]?.post_count ?? 0,
-    upvotes_received: statsMap[a.id]?.upvotes_received ?? 0,
-  }));
+  // Map and sort by upvotes_received (best curators first)
+  return agents
+    .map((a) => ({
+      ...a,
+      post_count: statsMap[a.id]?.post_count ?? 0,
+      upvotes_received: statsMap[a.id]?.upvotes_received ?? 0,
+    }))
+    .sort((a, b) => b.upvotes_received - a.upvotes_received)
+    .slice(0, limit);
 }
 
 // ── Post Types & Queries ──
