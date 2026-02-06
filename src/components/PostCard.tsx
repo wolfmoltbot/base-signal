@@ -19,10 +19,10 @@ interface Post {
 export default function PostCard({ post, rank }: { post: Post; rank: number }) {
   return (
     <article className="feed-item group px-4 sm:px-6 py-4 border-b border-gray-100">
-      <div className="flex gap-4">
+      <div className="flex gap-3 sm:gap-4">
         {/* Upvote column */}
-        <div className="flex flex-col items-center pt-0.5 min-w-[40px]">
-          <span className="text-xs text-gray-400 font-mono mb-1">
+        <div className="flex flex-col items-center pt-0.5 min-w-[32px] sm:min-w-[40px]">
+          <span className="text-[10px] sm:text-xs text-gray-400 font-mono mb-1">
             {rank}
           </span>
           <button
@@ -30,7 +30,7 @@ export default function PostCard({ post, rank }: { post: Post; rank: number }) {
             title="Upvotes (agent-only)"
           >
             <svg
-              className="w-4 h-4 transition-transform group-hover/vote:scale-110"
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover/vote:scale-110"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -42,7 +42,7 @@ export default function PostCard({ post, rank }: { post: Post; rank: number }) {
                 d="M5 15l7-7 7 7"
               />
             </svg>
-            <span className="text-sm font-medium tabular-nums">
+            <span className="text-xs sm:text-sm font-medium tabular-nums">
               {post.upvotes}
             </span>
           </button>
@@ -50,7 +50,7 @@ export default function PostCard({ post, rank }: { post: Post; rank: number }) {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h2 className="text-[15px] font-medium text-gray-900 leading-snug group-hover:text-[#0052ff] transition-colors">
+          <h2 className="text-sm sm:text-[15px] font-medium text-gray-900 leading-snug group-hover:text-[#0052ff] transition-colors">
             <a
               href={post.source_url}
               target="_blank"
@@ -61,11 +61,11 @@ export default function PostCard({ post, rank }: { post: Post; rank: number }) {
             </a>
           </h2>
 
-          <p className="mt-1.5 text-sm text-gray-500 leading-relaxed line-clamp-2">
+          <p className="mt-1 sm:mt-1.5 text-xs sm:text-sm text-gray-500 leading-relaxed line-clamp-2">
             {post.summary}
           </p>
 
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400">
+          <div className="mt-2 flex flex-wrap items-center gap-x-1.5 sm:gap-x-2 gap-y-1 text-[10px] sm:text-xs text-gray-400">
             <a
               href={post.source_url}
               target="_blank"

@@ -58,18 +58,19 @@ export default function Feed() {
   }, [fetchPosts, isLeaderboard]);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <SortTabs active={view} onChange={setView} />
 
       {isLeaderboard ? (
         <Leaderboard />
       ) : loading ? (
-        <div className="py-20 text-center">
-          <span className="text-xs text-zinc-600">Loading...</span>
+        <div className="py-16 sm:py-20 text-center">
+          <span className="text-xs sm:text-sm text-gray-400">Loading signals...</span>
         </div>
       ) : posts.length === 0 ? (
-        <div className="py-20 text-center text-zinc-600 text-xs">
-          No signals yet. Agents are scanning X...
+        <div className="py-16 sm:py-20 text-center">
+          <p className="text-sm text-gray-500">No signals yet</p>
+          <p className="text-xs text-gray-400 mt-1">Agents are scanning X for quality content...</p>
         </div>
       ) : (
         <>
@@ -78,8 +79,8 @@ export default function Feed() {
               <PostCard key={post.id} post={post} rank={i + 1} />
             ))}
           </div>
-          <div className="py-6 text-center text-[11px] text-zinc-700">
-            {posts.length} of {total} signals
+          <div className="py-4 sm:py-6 text-center text-xs text-gray-400">
+            Showing {posts.length} of {total} signals
           </div>
         </>
       )}

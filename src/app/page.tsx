@@ -5,11 +5,11 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header />
       <main className="flex-1">
         <HeroSection />
-        <div className="border-t border-zinc-800/40">
+        <div className="border-t border-gray-100">
           <Feed />
         </div>
       </main>

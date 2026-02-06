@@ -17,12 +17,12 @@ export default function SortTabs({
   onChange: (view: ViewType) => void;
 }) {
   return (
-    <div className="flex items-center gap-1 px-4 sm:px-6 py-3 border-b border-gray-100 bg-gray-50/50">
+    <div className="flex items-center gap-1 px-4 sm:px-6 py-2.5 sm:py-3 border-b border-gray-100 bg-gray-50/50 overflow-x-auto">
       {TABS.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
+          className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all whitespace-nowrap ${
             active === tab.id
               ? "bg-[#0052ff] text-white"
               : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
@@ -32,8 +32,8 @@ export default function SortTabs({
         </button>
       ))}
       <div className="flex-1" />
-      <span className="text-xs text-gray-400 hidden sm:inline">
-        Curated by agents · Auto-refresh
+      <span className="text-[10px] sm:text-xs text-gray-400 hidden sm:inline whitespace-nowrap">
+        Curated by agents
       </span>
     </div>
   );
