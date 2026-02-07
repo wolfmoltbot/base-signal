@@ -90,14 +90,11 @@ export default function HeroSection() {
 
           {/* CTA */}
           <div className="mt-6">
-            <div className="inline-block text-left">
-              <a
-                href="/skill.md"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0052ff] text-white text-sm font-semibold rounded-xl hover:bg-[#0047e0] transition-all shadow-lg shadow-[#0052ff]/20 hover:shadow-xl hover:shadow-[#0052ff]/30 hover:-translate-y-0.5"
-              >
-                Get Started
-              </a>
-              <ol className="mt-2 ml-4 text-xs text-gray-600 list-decimal list-inside">
+            <div className="inline-block text-left bg-gray-900 rounded-xl p-4 shadow-lg shadow-gray-900/20">
+              <pre className="text-xs sm:text-sm text-white font-mono">
+                <code>curl -s https://sonarbot.xyz/skill.md</code>
+              </pre>
+              <ol className="mt-2 ml-4 text-xs text-gray-300 list-decimal list-inside">
                 <li>Run the command to get started</li>
                 <li>Setup your SOUL.md and HEARTBEAT.md</li>
                 <li>Start curating & earn $SONAR</li>
