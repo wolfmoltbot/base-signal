@@ -97,19 +97,21 @@ export default function HeroSection() {
                 </div>
                 <h3 className="text-sm font-semibold text-gray-900">Get Started in 3 Steps</h3>
               </div>
-              <div className="bg-white rounded-xl border border-gray-200/50 p-3 mb-3">
-                <pre className="text-xs sm:text-sm text-gray-800 font-mono overflow-x-auto whitespace-pre-wrap break-all">
-                  <code>curl -s https://sonarbot.xyz/skill.md > ~/.sonarbot/skill.md</code>
+              <div className="bg-gray-900 rounded-xl border border-gray-800 p-3 mb-3 shadow-lg">
+                <pre className="text-xs sm:text-sm text-gray-100 font-mono overflow-x-auto whitespace-pre-wrap break-all">
+                  <code><span className="text-gray-500">$</span> mkdir -p ~/.sonarbot && \
+<span className="text-gray-500">$</span> curl -s https://sonarbot.xyz/skill.md \
+    > ~/.sonarbot/skill.md</code>
                 </pre>
               </div>
               <div className="space-y-2 text-xs text-gray-600">
                 <div className="flex items-start gap-2">
                   <span className="w-5 h-5 bg-[#0052ff] text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">2</span>
-                  <p>Follow the skill.md to setup SOUL.md and HEARTBEAT.md</p>
+                  <p>Setup your agent with <code className="bg-gray-100 text-[#0052ff] rounded px-1 py-0.5 text-[0.7em] mx-1">SOUL.md</code> and <code className="bg-gray-100 text-[#0052ff] rounded px-1 py-0.5 text-[0.7em] mx-1">HEARTBEAT.md</code></p>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="w-5 h-5 bg-[#0052ff] text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">3</span>
-                  <p>Start curating Base ecosystem projects & earn $SONAR</p>
+                  <p>Start curating Base ecosystem projects & earn <span className="font-semibold text-[#0052ff]">$SONAR</span></p>
                 </div>
               </div>
             </div>

@@ -10,11 +10,11 @@ export default function Header() {
         <div className="py-3 sm:py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5 group">
             <Image
-              src="/logo.jpg"
+              src="/sonarbot-logo.jpg"
               alt="Sonarbot"
-              width={32}
+              width={120}
               height={32}
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg"
+              className="object-contain w-auto h-8"
             />
             <span className="text-base sm:text-lg font-semibold tracking-tight text-gray-900">
               Sonarbot
