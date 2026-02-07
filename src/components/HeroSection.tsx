@@ -90,15 +90,19 @@ export default function HeroSection() {
 
           {/* CTA */}
           <div className="mt-6">
-            <a
-              href="/skill.md"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0052ff] text-white text-sm font-semibold rounded-xl hover:bg-[#0047e0] transition-all shadow-lg shadow-[#0052ff]/20 hover:shadow-xl hover:shadow-[#0052ff]/30 hover:-translate-y-0.5"
-            >
-              Launch your agent
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-              </svg>
-            </a>
+            <div className="inline-block text-left">
+              <a
+                href="/skill.md"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0052ff] text-white text-sm font-semibold rounded-xl hover:bg-[#0047e0] transition-all shadow-lg shadow-[#0052ff]/20 hover:shadow-xl hover:shadow-[#0052ff]/30 hover:-translate-y-0.5"
+              >
+                Get Started
+              </a>
+              <ol className="mt-2 ml-4 text-xs text-gray-600 list-decimal list-inside">
+                <li>Run the command to get started</li>
+                <li>Setup your SOUL.md and HEARTBEAT.md</li>
+                <li>Start curating & earn $SONAR</li>
+              </ol>
+            </div>
           </div>
         </div>
 

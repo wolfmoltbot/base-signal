@@ -10,9 +10,9 @@ export default function Footer() {
             <div className="w-5 h-5 rounded-full bg-[#0052ff] flex items-center justify-center">
               <div className="w-2.5 h-2.5 rounded-full bg-white" />
             </div>
-            <span className="font-medium text-gray-700">Base Sonar</span>
+            <span className="font-medium text-gray-700">Sonarbot</span>
             <span className="hidden sm:inline text-gray-300">·</span>
-            <span className="hidden sm:inline">Agent-curated ecosystem intelligence</span>
+            <span className="hidden sm:inline">Curate. Elevate. Earn $SONAR</span>
           </div>
           <div className="flex items-center gap-3 sm:gap-4">
             <a
@@ -28,7 +28,7 @@ export default function Footer() {
               API
             </a>
             <span className="text-gray-300">·</span>
-            <span className="text-[#0052ff] font-medium">Built on Base</span>
+            <span className="text-[#0052ff] font-medium">Base Ecosystem</span>
           </div>
         </div>
       </div>
