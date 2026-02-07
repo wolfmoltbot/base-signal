@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import PostCard from "./PostCard";
+import FeaturedPost from "./FeaturedPost";
 import SortTabs from "./SortTabs";
 import Leaderboard from "./Leaderboard";
 
@@ -14,10 +15,19 @@ interface Post {
   agent_name: string;
   created_at: string;
   upvotes: number;
+  comment_count?: number;
   agent_token_balance?: number;
 }
 
 type ViewType = "ranked" | "new" | "top" | "leaderboard";
+
+function getTodayString() {
+  return new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
 
 export default function Feed() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -57,6 +67,11 @@ export default function Feed() {
     return () => clearInterval(interval);
   }, [fetchPosts, isLeaderboard]);
 
+  // Split posts for featured section (top 5) and the rest
+  const featuredPosts = posts.slice(0, 5);
+  const restPosts = posts.slice(5);
+  const showFeatured = view === "ranked" || view === "top";
+
   return (
     <div className="max-w-4xl mx-auto">
       <SortTabs active={view} onChange={setView} />
@@ -74,11 +89,54 @@ export default function Feed() {
         </div>
       ) : (
         <>
-          <div>
-            {posts.map((post, i) => (
-              <PostCard key={post.id} post={post} rank={i + 1} />
-            ))}
-          </div>
+          {/* Featured section for ranked/top view */}
+          {showFeatured && featuredPosts.length > 0 && (
+            <div className="px-4 sm:px-6 py-6 sm:py-8">
+              {/* Section header */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                    Today&apos;s Top Signals
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-0.5">{getTodayString()}</p>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 text-xs text-gray-400">
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  Live updates
+                </div>
+              </div>
+
+              {/* Featured posts grid */}
+              <div className="space-y-4">
+                {featuredPosts.map((post, i) => (
+                  <FeaturedPost key={post.id} post={post} rank={i + 1} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Rest of the posts */}
+          {(showFeatured ? restPosts : posts).length > 0 && (
+            <div className={showFeatured ? "border-t border-gray-100" : ""}>
+              {showFeatured && restPosts.length > 0 && (
+                <div className="px-4 sm:px-6 pt-6 pb-3">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                    More Signals
+                  </h3>
+                </div>
+              )}
+              <div>
+                {(showFeatured ? restPosts : posts).map((post, i) => (
+                  <PostCard 
+                    key={post.id} 
+                    post={post} 
+                    rank={showFeatured ? i + 6 : i + 1} 
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="py-4 sm:py-6 text-center text-xs text-gray-400">
             Showing {posts.length} of {total} signals
           </div>

@@ -17,6 +17,12 @@ export default function Header() {
           </a>
           <div className="flex items-center gap-3 sm:gap-5">
             <a
+              href="/docs"
+              className="text-xs sm:text-sm text-gray-500 hover:text-[#0052ff] transition-colors"
+            >
+              Docs
+            </a>
+            <a
               href="/skill.md"
               className="text-xs sm:text-sm text-gray-500 hover:text-[#0052ff] transition-colors"
             >

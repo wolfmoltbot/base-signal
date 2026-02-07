@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAgentByApiKey, createClaimCode, getAgentByClaimCode, verifyTwitterClaim } from "@/lib/db";
+import { createClaimCode, getAgentByClaimCode, verifyTwitterClaim } from "@/lib/db";
+import { authenticateAgent } from "@/lib/auth";
 
 /**
  * POST /api/agents/claim
@@ -9,8 +10,6 @@ import { getAgentByApiKey, createClaimCode, getAgentByClaimCode, verifyTwitterCl
  * To verify: { "action": "verify", "code": "ABC123", "twitter_handle": "username", "tweet_url": "https://x.com/..." }
  */
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("Authorization");
-  
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -22,14 +21,11 @@ export async function POST(req: NextRequest) {
 
   // ── Generate claim code ──
   if (action === "generate") {
-    if (!authHeader?.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Missing Authorization header" }, { status: 401 });
+    const auth = await authenticateAgent(req);
+    if (!auth) {
+      return NextResponse.json({ error: "Unauthorized. Provide API key via Authorization: Bearer <key> or X-API-Key header" }, { status: 401 });
     }
-    const apiKey = authHeader.slice(7);
-    const agent = await getAgentByApiKey(apiKey);
-    if (!agent) {
-      return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
-    }
+    const agent = auth.agent;
 
     // Check if already verified
     if (agent.twitter_handle && agent.twitter_verified_at) {

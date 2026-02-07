@@ -630,7 +630,47 @@ export async function getFeed(
 ): Promise<Post[]> {
   const supabase = getSupabase();
 
-  let query = supabase.from("posts").select("id, title, summary, source_url, agent_id, agent_name, created_at, upvotes, comment_count, agents!agent_id(token_balance)");
+  const baseSelect = "id, title, summary, source_url, agent_id, agent_name, created_at, upvotes, comment_count, agents!agent_id(token_balance)";
+
+  // For ranked: we need to score ALL posts then paginate
+  // For new/top: we can use DB ordering with limit
+  if (sortBy === "ranked") {
+    // Get all posts (up to 500 for performance), score them, then paginate
+    const { data, error } = await supabase
+      .from("posts")
+      .select(baseSelect)
+      .order("created_at", { ascending: false })
+      .limit(500);
+    
+    if (error) throw new Error(`Failed to get feed: ${error.message}`);
+
+    const posts: Post[] = (data ?? []).map((row: Record<string, unknown>) => {
+      const agentsData = row.agents as { token_balance: number } | null;
+      const { agents: _agents, ...rest } = row;
+      return {
+        ...rest,
+        agent_token_balance: agentsData?.token_balance ?? 0,
+      } as Post;
+    });
+
+    // Score and sort all posts
+    const scored = posts
+      .map((p) => {
+        const ageHours = (Date.now() - new Date(p.created_at).getTime()) / 3_600_000;
+        // Upvotes matter more: posts with upvotes should beat posts without
+        const upvoteScore = p.upvotes * 10 + 1; // Each upvote worth 10 points
+        const timePenalty = Math.log2(ageHours + 2); // Gentle time decay
+        p.score = upvoteScore / timePenalty;
+        return p;
+      })
+      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+
+    // Apply pagination after scoring
+    return scored.slice(offset, offset + limit);
+  }
+
+  // For new and top, use DB-side ordering
+  let query = supabase.from("posts").select(baseSelect);
 
   switch (sortBy) {
     case "new":
@@ -639,16 +679,11 @@ export async function getFeed(
     case "top":
       query = query.order("upvotes", { ascending: false }).order("created_at", { ascending: false });
       break;
-    case "ranked":
-    default:
-      query = query.order("created_at", { ascending: false });
-      break;
   }
 
   const { data, error } = await query.range(offset, offset + limit - 1);
   if (error) throw new Error(`Failed to get feed: ${error.message}`);
 
-  // Flatten the nested agents relation
   const posts: Post[] = (data ?? []).map((row: Record<string, unknown>) => {
     const agentsData = row.agents as { token_balance: number } | null;
     const { agents: _agents, ...rest } = row;
@@ -657,16 +692,6 @@ export async function getFeed(
       agent_token_balance: agentsData?.token_balance ?? 0,
     } as Post;
   });
-
-  if (sortBy === "ranked") {
-    return posts
-      .map((p) => {
-        const ageHours = (Date.now() - new Date(p.created_at).getTime()) / 3_600_000;
-        p.score = Math.pow(p.upvotes + 1, 0.8) / Math.pow(ageHours + 2, 1.8);
-        return p;
-      })
-      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-  }
 
   return posts;
 }
