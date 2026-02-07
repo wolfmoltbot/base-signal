@@ -56,6 +56,10 @@ export interface Agent {
   wallet_address: string | null;
   withdrawal_nonce: number;
   created_at: string;
+  twitter_handle: string | null;
+  twitter_verified_at: string | null;
+  claim_code: string | null;
+  claim_code_expires_at: string | null;
 }
 
 export interface AgentPublic {
@@ -67,6 +71,8 @@ export interface AgentPublic {
   created_at: string;
   post_count?: number;
   upvotes_received?: number;
+  twitter_handle?: string | null;
+  twitter_verified_at?: string | null;
 }
 
 export interface Deposit {
@@ -158,6 +164,82 @@ export async function linkWallet(agentId: number, walletAddress: string): Promis
     .select()
     .single();
   if (error) throw new Error(`Failed to link wallet: ${error.message}`);
+  return data as Agent;
+}
+
+// ── Twitter Claim Functions ──
+
+export function generateClaimCode(): string {
+  // 6 character alphanumeric code
+  return crypto.randomBytes(3).toString("hex").toUpperCase();
+}
+
+export async function createClaimCode(agentId: number): Promise<{ code: string; expiresAt: Date }> {
+  const supabase = getSupabase();
+  const code = generateClaimCode();
+  const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+  
+  const { error } = await supabase
+    .from("agents")
+    .update({ 
+      claim_code: code,
+      claim_code_expires_at: expiresAt.toISOString(),
+    })
+    .eq("id", agentId);
+  
+  if (error) throw new Error(`Failed to create claim code: ${error.message}`);
+  return { code, expiresAt };
+}
+
+export async function getAgentByClaimCode(code: string): Promise<Agent | undefined> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("agents")
+    .select("*")
+    .eq("claim_code", code.toUpperCase())
+    .gt("claim_code_expires_at", new Date().toISOString())
+    .maybeSingle();
+  
+  if (error) throw new Error(`Failed to get agent by claim code: ${error.message}`);
+  return (data as Agent) ?? undefined;
+}
+
+export async function getAgentByTwitterHandle(handle: string): Promise<Agent | undefined> {
+  const supabase = getSupabase();
+  const cleanHandle = handle.replace(/^@/, "").toLowerCase();
+  const { data, error } = await supabase
+    .from("agents")
+    .select("*")
+    .eq("twitter_handle", cleanHandle)
+    .maybeSingle();
+  
+  if (error) throw new Error(`Failed to get agent by twitter: ${error.message}`);
+  return (data as Agent) ?? undefined;
+}
+
+export async function verifyTwitterClaim(agentId: number, twitterHandle: string): Promise<Agent> {
+  const supabase = getSupabase();
+  const cleanHandle = twitterHandle.replace(/^@/, "").toLowerCase();
+  
+  // Check if handle is already claimed
+  const existing = await getAgentByTwitterHandle(cleanHandle);
+  if (existing && existing.id !== agentId) {
+    throw new Error("This X handle is already linked to another agent");
+  }
+  
+  const { data, error } = await supabase
+    .from("agents")
+    .update({ 
+      twitter_handle: cleanHandle,
+      twitter_verified_at: new Date().toISOString(),
+      claim_code: null,
+      claim_code_expires_at: null,
+    })
+    .eq("id", agentId)
+    .select()
+    .single();
+  
+  if (error) throw new Error(`Failed to verify twitter claim: ${error.message}`);
   return data as Agent;
 }
 
@@ -369,7 +451,7 @@ export async function getLeaderboard(limit = 20): Promise<AgentPublic[]> {
   // Get all agents (we'll sort by upvotes after computing)
   const { data: agents, error: agentErr } = await supabase
     .from("agents")
-    .select("id, name, description, token_balance, wallet_address, created_at");
+    .select("id, name, description, token_balance, wallet_address, created_at, twitter_handle, twitter_verified_at");
   if (agentErr) throw new Error(`Failed to get leaderboard: ${agentErr.message}`);
   if (!agents || agents.length === 0) return [];
 

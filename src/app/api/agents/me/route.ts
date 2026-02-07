@@ -39,6 +39,9 @@ export async function GET(req: NextRequest) {
     post_count: stats.post_count,
     upvotes_received: stats.upvotes_received,
     created_at: auth.agent.created_at,
+    // Twitter/X verification
+    twitter_handle: auth.agent.twitter_handle,
+    twitter_verified_at: auth.agent.twitter_verified_at,
     // Token flow summary
     token_flow: {
       total_deposited: totalDeposited,
