@@ -194,52 +194,53 @@ export default function Home() {
               const isUpvoted = upvoted.has(p.id);
               const cc = commentCounts[p.id] || 0;
               return (
-                <div key={p.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: '16px 0', borderBottom: '1px solid #f0f0f0' }}>
+                <div key={p.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: '18px 0', borderBottom: '1px solid #f0f0f0' }}>
                   <Link href={`/project/${p.id}`} style={{ flexShrink: 0, marginTop: 2 }}>
                     {p.logo_url ? (
-                      <img src={p.logo_url} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
+                      <img src={p.logo_url} alt="" style={{ width: 60, height: 60, borderRadius: 12, objectFit: 'cover' }} />
                     ) : (
-                      <div style={{ width: 56, height: 56, borderRadius: 12, background: `hsl(${hue}, 45%, 92%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: 22, fontWeight: 700, color: `hsl(${hue}, 45%, 45%)` }}>{p.name[0]}</span>
+                      <div style={{ width: 60, height: 60, borderRadius: 12, background: `hsl(${hue}, 45%, 92%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 24, fontWeight: 700, color: `hsl(${hue}, 45%, 45%)` }}>{p.name[0]}</span>
                       </div>
                     )}
                   </Link>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <Link href={`/project/${p.id}`} style={{ textDecoration: 'none' }}>
-                      <h2 style={{ fontSize: 15, fontWeight: 600, color: '#21293c', margin: 0, lineHeight: 1.3 }}>{i + 1}. {p.name}</h2>
+                      <h2 style={{ fontSize: 16, fontWeight: 600, color: '#21293c', margin: 0, lineHeight: 1.3 }}>{p.name}</h2>
                     </Link>
-                    <p style={{ fontSize: 14, color: '#6f7784', margin: '2px 0 0', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.tagline}</p>
-                    {/* Category pills */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 12, color: '#9b9b9b', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c4c4c4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                    <p style={{ fontSize: 14, color: '#6f7784', margin: '3px 0 0', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.tagline}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: 12, color: '#9b9b9b', padding: '2px 8px', borderRadius: 4, background: '#f5f5f5', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                         {CATEGORY_LABELS[p.category] || p.category}
                       </span>
                     </div>
                   </div>
-                  {/* Upvote + Comments side by side */}
-                  <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                    {/* Comments count */}
-                    <Link href={`/project/${p.id}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: 42, height: 52, color: '#9b9b9b', textDecoration: 'none', gap: 2 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {/* Upvote + Comments — prominent like PH */}
+                  <div style={{ flexShrink: 0, display: 'flex', alignItems: 'stretch', gap: 0, marginTop: 6 }}>
+                    {/* Comments */}
+                    <Link href={`/project/${p.id}`} style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      width: 52, height: 60, color: '#6f7784', textDecoration: 'none', gap: 4,
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                       </svg>
-                      <span style={{ fontSize: 11, fontWeight: 600, lineHeight: 1 }}>{cc}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, lineHeight: 1 }}>{cc}</span>
                     </Link>
-                    {/* Upvote button */}
+                    {/* Upvote */}
                     <button onClick={() => handleUpvote(p.id)}
                       style={{
                         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        width: 42, height: 52, borderRadius: 8,
-                        border: isUpvoted ? '2px solid #0000FF' : '1px solid #e8e8e8',
+                        width: 52, height: 60, borderRadius: 10,
+                        border: isUpvoted ? '2px solid #0000FF' : '1px solid #e0e0e0',
                         background: isUpvoted ? '#f0f0ff' : '#ffffff',
-                        color: isUpvoted ? '#0000FF' : '#4b587c',
-                        padding: 0, gap: 2, cursor: 'pointer', transition: 'all 0.15s ease',
+                        color: isUpvoted ? '#0000FF' : '#21293c',
+                        padding: 0, gap: 4, cursor: 'pointer', transition: 'all 0.15s ease',
                       }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="18 15 12 9 6 15" />
                       </svg>
-                      <span style={{ fontSize: 11, fontWeight: 700, lineHeight: 1 }}>{p.upvotes}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1 }}>{p.upvotes}</span>
                     </button>
                   </div>
                 </div>

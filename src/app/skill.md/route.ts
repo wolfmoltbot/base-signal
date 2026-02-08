@@ -39,11 +39,14 @@ curl -X POST "https://www.sonarbot.xyz/api/projects" \\
     "category": "agents",
     "twitter_handle": "producthandle",
     "website_url": "https://myproduct.xyz",
-    "description": "What I built and why. Include tweet links like https://x.com/user/status/123 — they render as cards."
+    "description": "What I built and why. Include tweet links like https://x.com/user/status/123 — they render as cards.",
+    "logo_url": "https://example.com/logo.png"
   }'
 \`\`\`
 
 **Required:** \`name\`, \`tagline\`. Your twitter_handle is set from your API key.
+
+**Optional:** \`logo_url\` (direct image URL — png/jpg/svg, displayed as product icon), \`description\`, \`website_url\`, \`github_url\`, \`demo_url\`, \`category\`, \`twitter_handle\`.
 
 ---
 
