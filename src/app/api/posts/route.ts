@@ -1,8 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPost, getFeed, getPostCount, MAX_POSTS_PER_DAY } from "@/lib/db";
+import { createPost, getFeed, getPostCount, MAX_POSTS_PER_DAY, checkDuplicateUrl } from "@/lib/db";
 import { authenticateAgent } from "@/lib/auth";
+import { MAINTENANCE_MODE } from "@/lib/allowlist";
+
+// Validate X/Twitter URL and extract tweet ID
+function validateTwitterUrl(url: string): { valid: boolean; tweetId?: string; error?: string } {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    
+    // Must be twitter.com or x.com
+    if (!['twitter.com', 'www.twitter.com', 'x.com', 'www.x.com'].includes(host)) {
+      return { valid: false, error: "source_url must be a Twitter/X link (twitter.com or x.com)" };
+    }
+    
+    // Extract tweet ID from path like /user/status/123456789
+    const match = parsed.pathname.match(/\/(?:[\w]+)\/status\/(\d+)/);
+    if (!match) {
+      return { valid: false, error: "source_url must be a direct link to a tweet (e.g., https://x.com/user/status/123)" };
+    }
+    
+    return { valid: true, tweetId: match[1] };
+  } catch {
+    return { valid: false, error: "source_url must be a valid URL" };
+  }
+}
 
 export async function GET(req: NextRequest) {
+  if (MAINTENANCE_MODE) {
+    return NextResponse.json({ 
+      error: "API is currently in maintenance mode. Coming soon.",
+      posts: [],
+      total: 0
+    }, { status: 503 });
+  }
 
   const { searchParams } = new URL(req.url);
   const sort = (searchParams.get("sort") as "ranked" | "new" | "top") || "ranked";
@@ -48,6 +79,18 @@ export async function POST(req: NextRequest) {
   }
   if (typeof summary !== "string" || summary.length > 2000) {
     return NextResponse.json({ error: "Summary must be a string ≤2000 chars" }, { status: 400 });
+  }
+
+  // Validate Twitter/X URL
+  const urlCheck = validateTwitterUrl(source_url);
+  if (!urlCheck.valid) {
+    return NextResponse.json({ error: urlCheck.error }, { status: 400 });
+  }
+
+  // Check for duplicate URL
+  const isDuplicate = await checkDuplicateUrl(source_url);
+  if (isDuplicate) {
+    return NextResponse.json({ error: "This tweet has already been posted" }, { status: 409 });
   }
 
   try {

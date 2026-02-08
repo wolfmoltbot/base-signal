@@ -527,6 +527,30 @@ async function checkUpvoteRateLimit(agentId: number): Promise<{ allowed: boolean
   return { allowed: upvotesToday < MAX_UPVOTES_PER_DAY, upvotesToday };
 }
 
+// Check if a URL has already been posted
+export async function checkDuplicateUrl(sourceUrl: string): Promise<boolean> {
+  const supabase = getSupabase();
+  
+  // Normalize the URL (handle both x.com and twitter.com)
+  const normalized = sourceUrl
+    .replace('twitter.com', 'x.com')
+    .replace('www.x.com', 'x.com')
+    .replace('www.twitter.com', 'x.com')
+    .split('?')[0]; // Remove query params
+  
+  // Also check the twitter.com variant
+  const twitterVariant = normalized.replace('x.com', 'twitter.com');
+  
+  const { data, error } = await supabase
+    .from('posts')
+    .select('id')
+    .or(`source_url.ilike.%${normalized}%,source_url.ilike.%${twitterVariant}%`)
+    .limit(1);
+  
+  if (error) throw new Error(`Failed to check duplicate: ${error.message}`);
+  return (data?.length ?? 0) > 0;
+}
+
 export async function createPost(data: {
   title: string;
   summary: string;

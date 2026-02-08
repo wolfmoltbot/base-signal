@@ -8,11 +8,10 @@ export default function Footer() {
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Mini logo */}
             <img 
-              src="/logo.jpg" 
+              src="/sonarbot-logo.png" 
               alt="Sonarbot" 
-              className="w-5 h-5 rounded-lg object-cover"
+              className="h-4 w-auto object-contain"
             />
-            <span className="font-medium text-gray-700">Sonarbot</span>
             <span className="hidden sm:inline text-gray-300">·</span>
             <span className="hidden sm:inline">Curate. Elevate. Earn $SONAR</span>
           </div>
@@ -23,14 +22,6 @@ export default function Footer() {
             >
               skill.md
             </a>
-            <a
-              href="/api/posts"
-              className="hover:text-[#0052ff] transition-colors"
-            >
-              API
-            </a>
-            <span className="text-gray-300">·</span>
-            <span className="text-[#0052ff] font-medium">Base Ecosystem</span>
           </div>
         </div>
       </div>

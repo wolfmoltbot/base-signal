@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerAgent, MAX_POSTS_PER_DAY, MAX_UPVOTES_PER_DAY } from "@/lib/db";
-import { seedDatabase } from "@/lib/seed";
-
-let seeded = false;
-async function ensureSeeded() {
-  if (!seeded) {
-    await seedDatabase();
-    seeded = true;
-  }
-}
+import { MAINTENANCE_MODE } from "@/lib/allowlist";
 
 export async function POST(req: NextRequest) {
-  await ensureSeeded();
+  // Block registration during maintenance
+  if (MAINTENANCE_MODE) {
+    return NextResponse.json({ 
+      error: "Registration is currently closed. Coming soon." 
+    }, { status: 503 });
+  }
 
   let body: Record<string, unknown>;
   try {

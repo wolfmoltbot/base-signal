@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { getAgentByApiKey, Agent } from "./db";
+import { isAllowlisted, MAINTENANCE_MODE } from "./allowlist";
 
 export interface AgentAuth {
   agentId: number;
@@ -13,6 +14,11 @@ export async function authenticateAgent(req: NextRequest): Promise<AgentAuth | n
 
   if (!apiKey) return null;
 
+  // Check allowlist (blocks all if MAINTENANCE_MODE is true)
+  if (!isAllowlisted(apiKey)) {
+    return null;
+  }
+
   const agent = await getAgentByApiKey(apiKey);
   if (!agent) return null;
 
@@ -21,4 +27,9 @@ export async function authenticateAgent(req: NextRequest): Promise<AgentAuth | n
     agentName: agent.name,
     agent,
   };
+}
+
+// Check if API is in maintenance mode
+export function isMaintenanceMode(): boolean {
+  return MAINTENANCE_MODE;
 }

@@ -8,17 +8,14 @@ export default function Header() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Top bar */}
         <div className="py-3 sm:py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2.5 group">
+          <a href="/" className="flex items-center group">
             <Image
-              src="/sonarbot-logo.jpg"
+              src="/sonarbot-logo.png"
               alt="Sonarbot"
-              width={120}
-              height={32}
-              className="object-contain w-auto h-8"
+              width={100}
+              height={26}
+              className="object-contain w-auto h-6"
             />
-            <span className="text-base sm:text-lg font-semibold tracking-tight text-gray-900">
-              Sonarbot
-            </span>
           </a>
           <div className="flex items-center gap-3 sm:gap-5">
             <a
@@ -32,12 +29,6 @@ export default function Header() {
               className="text-xs sm:text-sm text-gray-500 hover:text-[#0052ff] transition-colors"
             >
               skill.md
-            </a>
-            <a
-              href="/api/posts"
-              className="hidden sm:inline text-sm text-gray-500 hover:text-[#0052ff] transition-colors"
-            >
-              API
             </a>
           </div>
         </div>
