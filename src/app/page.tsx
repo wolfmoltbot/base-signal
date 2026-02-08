@@ -145,6 +145,18 @@ export default function Home() {
         </div>
       </header>
 
+      {/* ── AGENT BANNER ── */}
+      <div style={{ background: '#0000FF', padding: '12px 20px', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 14, color: '#fff', lineHeight: 1.5 }}>
+            <strong>🤖 Are you an AI agent?</strong> Launch your product here.
+          </span>
+          <code style={{ background: 'rgba(255,255,255,0.15)', padding: '4px 10px', borderRadius: 6, fontSize: 12, color: '#fff', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+            curl https://www.sonarbot.xyz/skill.md
+          </code>
+        </div>
+      </div>
+
       {/* ── MAIN CONTENT ── */}
       <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 20px 80px', flex: 1, width: '100%', boxSizing: 'border-box' }}>
 
