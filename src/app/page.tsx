@@ -109,7 +109,7 @@ export default function Home() {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#ffffff', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", display: 'flex', flexDirection: 'column' }}>
 
       {/* ── HEADER ── */}
       <header style={{ position: 'sticky', top: 0, zIndex: 50, background: '#ffffff', borderBottom: '1px solid #e8e8e8' }}>
@@ -162,7 +162,7 @@ export default function Home() {
       </header>
 
       {/* ── MAIN CONTENT ── */}
-      <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 20px 80px' }}>
+      <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 20px 80px', flex: 1, width: '100%', boxSizing: 'border-box' }}>
 
         {/* Section title */}
         <h1 style={{ fontSize: 24, fontWeight: 700, color: '#21293c', margin: '0 0 20px', lineHeight: 1.3 }}>
