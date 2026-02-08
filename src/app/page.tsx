@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { usePrivy, useLoginWithOAuth } from '@privy-io/react-auth';
 
@@ -26,13 +26,23 @@ export default function Home() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [upvoted, setUpvoted] = useState<Set<string>>(new Set());
   const [voting, setVoting] = useState<Set<string>>(new Set());
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const { ready, authenticated, logout, getAccessToken } = usePrivy();
   const { initOAuth } = useLoginWithOAuth();
 
   useEffect(() => { fetchProjects(); }, []);
 
-  // Fetch user info when authenticated
+  // Close menu on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   const fetchUserInfo = useCallback(async () => {
     if (!authenticated) { setUserInfo(null); return; }
     try {
@@ -41,10 +51,7 @@ export default function Home() {
       const res = await fetch('/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) {
-        const data = await res.json();
-        setUserInfo(data);
-      }
+      if (res.ok) setUserInfo(await res.json());
     } catch (e) { console.error(e); }
   }, [authenticated, getAccessToken]);
 
@@ -60,12 +67,8 @@ export default function Home() {
   };
 
   const handleUpvote = async (projectId: string) => {
-    if (!authenticated) {
-      initOAuth({ provider: 'twitter' });
-      return;
-    }
+    if (!authenticated) { initOAuth({ provider: 'twitter' }); return; }
     if (voting.has(projectId)) return;
-
     setVoting(prev => new Set(prev).add(projectId));
     try {
       const token = await getAccessToken();
@@ -80,8 +83,7 @@ export default function Home() {
         ));
         setUpvoted(prev => {
           const next = new Set(prev);
-          if (data.action === 'added') next.add(projectId);
-          else next.delete(projectId);
+          if (data.action === 'added') next.add(projectId); else next.delete(projectId);
           return next;
         });
       }
@@ -96,7 +98,7 @@ export default function Home() {
 
       {/* ── HEADER ── */}
       <header style={{ position: 'sticky', top: 0, zIndex: 50, background: '#ffffff', borderBottom: '1px solid #e8e8e8' }}>
-        <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', height: 56, gap: 12 }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', height: 56, gap: 10 }}>
           <Link href="/" style={{ flexShrink: 0, textDecoration: 'none' }}>
             <span style={{ fontWeight: 800, fontSize: 18, color: "#0000FF", lineHeight: 1, whiteSpace: "nowrap" }}>sonarbot :</span>
           </Link>
@@ -108,8 +110,9 @@ export default function Home() {
 
           {ready && (
             authenticated && userInfo ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, height: 34, padding: '0 10px 0 6px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff' }}>
+              <div ref={menuRef} style={{ position: 'relative' }}>
+                <button onClick={() => setMenuOpen(!menuOpen)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, height: 34, padding: '0 10px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#21293c' }}>
                   {userInfo.avatar ? (
                     <img src={userInfo.avatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%' }} />
                   ) : (
@@ -117,12 +120,21 @@ export default function Home() {
                       {userInfo.twitter_handle[0]?.toUpperCase()}
                     </div>
                   )}
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#21293c' }}>@{userInfo.twitter_handle}</span>
-                </div>
-                <button onClick={logout}
-                  style={{ height: 34, padding: '0 12px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', fontSize: 12, fontWeight: 500, color: '#9b9b9b', cursor: 'pointer' }}>
-                  Sign out
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6f7784" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
                 </button>
+                {menuOpen && (
+                  <div style={{ position: 'absolute', right: 0, top: 40, background: '#fff', border: '1px solid #e8e8e8', borderRadius: 12, padding: 4, minWidth: 160, boxShadow: '0 4px 16px rgba(0,0,0,0.08)', zIndex: 100 }}>
+                    <div style={{ padding: '8px 12px', fontSize: 13, fontWeight: 600, color: '#21293c', borderBottom: '1px solid #f0f0f0' }}>
+                      @{userInfo.twitter_handle}
+                    </div>
+                    <button onClick={() => { logout(); setMenuOpen(false); }}
+                      style={{ width: '100%', padding: '8px 12px', fontSize: 13, fontWeight: 500, color: '#e53e3e', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', borderRadius: 8 }}>
+                      Sign out
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <button onClick={() => initOAuth({ provider: 'twitter' })}
@@ -181,48 +193,29 @@ export default function Home() {
               const isUpvoted = upvoted.has(p.id);
               return (
                 <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 0', borderBottom: '1px solid #f0f0f0' }}>
-
                   <Link href={`/project/${p.id}`} style={{ flexShrink: 0 }}>
                     {p.logo_url ? (
                       <img src={p.logo_url} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
                     ) : (
                       <div style={{ width: 56, height: 56, borderRadius: 12, background: `hsl(${hue}, 45%, 92%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: 22, fontWeight: 700, color: `hsl(${hue}, 45%, 45%)` }}>
-                          {p.name[0]}
-                        </span>
+                        <span style={{ fontSize: 22, fontWeight: 700, color: `hsl(${hue}, 45%, 45%)` }}>{p.name[0]}</span>
                       </div>
                     )}
                   </Link>
-
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <Link href={`/project/${p.id}`} style={{ textDecoration: 'none' }}>
-                      <h2 style={{ fontSize: 15, fontWeight: 600, color: '#21293c', margin: 0, lineHeight: 1.3 }}>
-                        {i + 1}. {p.name}
-                      </h2>
+                      <h2 style={{ fontSize: 15, fontWeight: 600, color: '#21293c', margin: 0, lineHeight: 1.3 }}>{i + 1}. {p.name}</h2>
                     </Link>
-                    <p style={{ fontSize: 14, color: '#6f7784', margin: '2px 0 0', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {p.tagline}
-                    </p>
+                    <p style={{ fontSize: 14, color: '#6f7784', margin: '2px 0 0', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.tagline}</p>
                   </div>
-
-                  <button
-                    onClick={() => handleUpvote(p.id)}
+                  <button onClick={() => handleUpvote(p.id)}
                     style={{
-                      flexShrink: 0,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 48,
-                      height: 56,
-                      borderRadius: 10,
+                      flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      width: 48, height: 56, borderRadius: 10,
                       border: isUpvoted ? '2px solid #0000FF' : '1px solid #e8e8e8',
                       background: isUpvoted ? '#f0f0ff' : '#ffffff',
                       color: isUpvoted ? '#0000FF' : '#4b587c',
-                      padding: 0,
-                      gap: 2,
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
+                      padding: 0, gap: 2, cursor: 'pointer', transition: 'all 0.15s ease',
                     }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="18 15 12 9 6 15" />

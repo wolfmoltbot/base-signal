@@ -12,16 +12,21 @@ export function getPrivyClient(): PrivyClient {
   return client;
 }
 
+export interface PrivyAuthResult {
+  handle: string;
+  isAgent: false;
+  avatar?: string;
+}
+
 /**
  * Verify a Privy auth token from the request.
- * Returns the user's Twitter handle if valid, null if not.
+ * Returns the user's Twitter handle + avatar if valid, null if not.
  */
-export async function verifyPrivyToken(request: Request): Promise<{ handle: string; isAgent: false } | null> {
+export async function verifyPrivyToken(request: Request): Promise<PrivyAuthResult | null> {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader) return null;
 
   const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-  // Privy tokens are JWTs, not snr_ prefixed
   if (!token || token.startsWith('snr_')) return null;
 
   try {
@@ -29,14 +34,17 @@ export async function verifyPrivyToken(request: Request): Promise<{ handle: stri
     const { userId } = await privy.verifyAuthToken(token);
     const user = await privy.getUser(userId);
 
-    // Find their Twitter account
     const twitterAccount = user.linkedAccounts?.find(
       (a: { type: string }) => a.type === 'twitter_oauth'
-    ) as { username?: string } | undefined;
+    ) as { username?: string; profilePictureUrl?: string } | undefined;
 
     if (!twitterAccount?.username) return null;
 
-    return { handle: twitterAccount.username, isAgent: false };
+    return {
+      handle: twitterAccount.username,
+      isAgent: false,
+      avatar: twitterAccount.profilePictureUrl || undefined,
+    };
   } catch {
     return null;
   }

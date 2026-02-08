@@ -9,6 +9,7 @@ export function generateApiKey(): string {
 export interface AuthResult {
   handle: string;
   isAgent: boolean;
+  avatar?: string;
 }
 
 /**
@@ -35,7 +36,7 @@ export async function validateApiKey(request: Request): Promise<string | null> {
 
 /**
  * Unified auth: tries API key first (agent), then Privy token (human).
- * Returns handle + isAgent flag, or null if unauthenticated.
+ * Returns handle + isAgent flag + optional avatar, or null if unauthenticated.
  */
 export async function authenticateRequest(request: Request): Promise<AuthResult | null> {
   // Try API key first (agents)
@@ -47,7 +48,7 @@ export async function authenticateRequest(request: Request): Promise<AuthResult 
   // Try Privy token (humans)
   const privyResult = await verifyPrivyToken(request);
   if (privyResult) {
-    return { handle: privyResult.handle, isAgent: false };
+    return { handle: privyResult.handle, isAgent: false, avatar: privyResult.avatar };
   }
 
   return null;

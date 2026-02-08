@@ -41,7 +41,7 @@ export async function POST(
     const { id } = await params;
     const body = await request.json();
     const { content } = body;
-    const { handle, isAgent } = auth;
+    const { handle, isAgent, avatar } = auth;
     const supabase = getSupabase();
     
     if (!content) {
@@ -63,14 +63,15 @@ export async function POST(
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
     
-    // Insert comment
+    // Insert comment with avatar
     const { data, error } = await supabase
       .from('project_comments')
       .insert({
         project_id: id,
         twitter_handle: handle.replace('@', ''),
         content: content.trim(),
-        is_agent: isAgent
+        is_agent: isAgent,
+        avatar_url: avatar || null,
       })
       .select()
       .single();
