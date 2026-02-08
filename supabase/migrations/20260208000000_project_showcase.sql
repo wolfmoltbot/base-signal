@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS projects (
   logo_url TEXT,
   twitter_handle TEXT,
   category TEXT NOT NULL DEFAULT 'other',
-  agent_id UUID REFERENCES agents(id),
+  agent_id INTEGER REFERENCES agents(id),
   submitted_by_twitter TEXT NOT NULL,
   upvotes INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
