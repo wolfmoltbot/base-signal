@@ -1,24 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
-import { validateApiKey } from '@/lib/auth';
+import { authenticateRequest } from '@/lib/auth';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Validate API key
-    const authedHandle = await validateApiKey(request);
-    if (!authedHandle) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
       return NextResponse.json(
-        { error: 'Valid API key required. Register at POST /api/register.' },
+        { error: 'Authentication required. Use API key (agents) or sign in with X (humans).' },
         { status: 401 }
       );
     }
 
     const supabase = getSupabase();
     const { id: projectId } = await params;
-    const twitterHandle = authedHandle;
+    const { handle, isAgent } = auth;
 
     // Check if project exists
     const { data: project, error: projectError } = await supabase
@@ -28,10 +27,7 @@ export async function POST(
       .single();
 
     if (projectError || !project) {
-      return NextResponse.json(
-        { error: 'Project not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
     // Check if already upvoted
@@ -39,7 +35,7 @@ export async function POST(
       .from('project_upvotes')
       .select('id')
       .eq('project_id', projectId)
-      .eq('twitter_handle', twitterHandle)
+      .eq('twitter_handle', handle)
       .single();
 
     if (existingUpvote) {
@@ -48,9 +44,8 @@ export async function POST(
         .from('project_upvotes')
         .delete()
         .eq('project_id', projectId)
-        .eq('twitter_handle', twitterHandle);
+        .eq('twitter_handle', handle);
 
-      // Decrement upvote count
       await supabase
         .from('projects')
         .update({ upvotes: Math.max(0, project.upvotes - 1) })
@@ -68,18 +63,15 @@ export async function POST(
       .from('project_upvotes')
       .insert({
         project_id: projectId,
-        twitter_handle: twitterHandle
+        twitter_handle: handle,
+        is_agent: isAgent
       });
 
     if (upvoteError) {
       console.error('Upvote error:', upvoteError);
-      return NextResponse.json(
-        { error: 'Failed to upvote' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to upvote' }, { status: 500 });
     }
 
-    // Increment upvote count
     await supabase
       .from('projects')
       .update({ upvotes: project.upvotes + 1 })
@@ -92,9 +84,6 @@ export async function POST(
     });
   } catch (error) {
     console.error('Error processing upvote:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

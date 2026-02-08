@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@privy-io/react-auth": "^3.13.1",
+    "@privy-io/server-auth": "^1.32.5",
     "@supabase/supabase-js": "^2.94.1",
     "better-sqlite3": "^12.6.2",
     "dotenv": "^17.2.4",

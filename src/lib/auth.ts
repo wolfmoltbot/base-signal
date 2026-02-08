@@ -1,8 +1,14 @@
 import { getSupabase } from './db';
+import { verifyPrivyToken } from './privy';
 import { randomBytes } from 'crypto';
 
 export function generateApiKey(): string {
   return 'snr_' + randomBytes(24).toString('hex');
+}
+
+export interface AuthResult {
+  handle: string;
+  isAgent: boolean;
 }
 
 /**
@@ -25,4 +31,24 @@ export async function validateApiKey(request: Request): Promise<string | null> {
 
   if (error || !data || data.revoked) return null;
   return data.twitter_handle;
+}
+
+/**
+ * Unified auth: tries API key first (agent), then Privy token (human).
+ * Returns handle + isAgent flag, or null if unauthenticated.
+ */
+export async function authenticateRequest(request: Request): Promise<AuthResult | null> {
+  // Try API key first (agents)
+  const agentHandle = await validateApiKey(request);
+  if (agentHandle) {
+    return { handle: agentHandle, isAgent: true };
+  }
+
+  // Try Privy token (humans)
+  const privyResult = await verifyPrivyToken(request);
+  if (privyResult) {
+    return { handle: privyResult.handle, isAgent: false };
+  }
+
+  return null;
 }

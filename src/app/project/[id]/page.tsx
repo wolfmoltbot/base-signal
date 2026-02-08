@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useCallback } from 'react';
 import Link from 'next/link';
+import { usePrivy, useLoginWithOAuth } from '@privy-io/react-auth';
 
 interface Project {
   id: string;
@@ -24,6 +25,13 @@ interface Comment {
   twitter_handle: string;
   content: string;
   created_at: string;
+  is_agent?: boolean;
+}
+
+interface UserInfo {
+  twitter_handle: string;
+  name: string;
+  avatar: string | null;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -33,7 +41,6 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 function RichDescription({ text }: { text: string }) {
   const tweetRegex = /https?:\/\/(x\.com|twitter\.com)\/\w+\/status\/(\d+)\S*/g;
-
   const parts: { type: 'text' | 'url' | 'tweet'; value: string }[] = [];
   let offset = 0;
   let m;
@@ -45,33 +52,12 @@ function RichDescription({ text }: { text: string }) {
 
   for (const tweet of tweetMatches) {
     const before = text.slice(offset, tweet.index);
-    if (before) {
-      let urlLast = 0;
-      let um;
-      const urlRe = /(https?:\/\/[^\s]+)/g;
-      while ((um = urlRe.exec(before)) !== null) {
-        if (um.index > urlLast) parts.push({ type: 'text', value: before.slice(urlLast, um.index) });
-        parts.push({ type: 'url', value: um[0] });
-        urlLast = um.index + um[0].length;
-      }
-      if (urlLast < before.length) parts.push({ type: 'text', value: before.slice(urlLast) });
-    }
+    if (before) pushTextAndUrls(parts, before);
     parts.push({ type: 'tweet', value: tweet.url });
     offset = tweet.index + tweet.length;
   }
-
   const tail = text.slice(offset);
-  if (tail) {
-    let urlLast = 0;
-    let um;
-    const urlRe = /(https?:\/\/[^\s]+)/g;
-    while ((um = urlRe.exec(tail)) !== null) {
-      if (um.index > urlLast) parts.push({ type: 'text', value: tail.slice(urlLast, um.index) });
-      parts.push({ type: 'url', value: um[0] });
-      urlLast = um.index + um[0].length;
-    }
-    if (urlLast < tail.length) parts.push({ type: 'text', value: tail.slice(urlLast) });
-  }
+  if (tail) pushTextAndUrls(parts, tail);
 
   return (
     <div>
@@ -103,6 +89,18 @@ function RichDescription({ text }: { text: string }) {
   );
 }
 
+function pushTextAndUrls(parts: { type: 'text' | 'url' | 'tweet'; value: string }[], text: string) {
+  let urlLast = 0;
+  let um;
+  const urlRe = /(https?:\/\/[^\s]+)/g;
+  while ((um = urlRe.exec(text)) !== null) {
+    if (um.index > urlLast) parts.push({ type: 'text', value: text.slice(urlLast, um.index) });
+    parts.push({ type: 'url', value: um[0] });
+    urlLast = um.index + um[0].length;
+  }
+  if (urlLast < text.length) parts.push({ type: 'text', value: text.slice(urlLast) });
+}
+
 export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [project, setProject] = useState<Project | null>(null);
@@ -111,12 +109,34 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(true);
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [overviewOpen, setOverviewOpen] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [hasUpvoted, setHasUpvoted] = useState(false);
+  const [votingInProgress, setVotingInProgress] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+
+  const { ready, authenticated, logout, getAccessToken } = usePrivy();
+  const { initOAuth } = useLoginWithOAuth();
 
   useEffect(() => {
     fetchProject();
     fetchComments();
     fetchAllProjects();
   }, [id]);
+
+  const fetchUserInfo = useCallback(async () => {
+    if (!authenticated) { setUserInfo(null); return; }
+    try {
+      const token = await getAccessToken();
+      if (!token) return;
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) setUserInfo(await res.json());
+    } catch (e) { console.error(e); }
+  }, [authenticated, getAccessToken]);
+
+  useEffect(() => { if (ready && authenticated) fetchUserInfo(); }, [ready, authenticated, fetchUserInfo]);
 
   const fetchProject = async () => {
     try {
@@ -141,6 +161,48 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       const data = await res.json();
       setAllProjects((data.projects || []).map((p: { id: string; name: string }) => ({ id: p.id, name: p.name })));
     } catch (e) { console.error(e); }
+  };
+
+  const handleUpvote = async () => {
+    if (!authenticated) { initOAuth({ provider: 'twitter' }); return; }
+    if (votingInProgress) return;
+    setVotingInProgress(true);
+    try {
+      const token = await getAccessToken();
+      const res = await fetch(`/api/projects/${id}/upvote`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProject(prev => prev ? { ...prev, upvotes: data.upvotes } : prev);
+        setHasUpvoted(data.action === 'added');
+      }
+    } catch (e) { console.error(e); }
+    setVotingInProgress(false);
+  };
+
+  const handleComment = async () => {
+    if (!authenticated) { initOAuth({ provider: 'twitter' }); return; }
+    if (!commentText.trim() || submittingComment) return;
+    setSubmittingComment(true);
+    try {
+      const token = await getAccessToken();
+      const res = await fetch(`/api/projects/${id}/comments`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: commentText.trim() }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setComments(prev => [...prev, data.comment]);
+        setCommentText('');
+      }
+    } catch (e) { console.error(e); }
+    setSubmittingComment(false);
   };
 
   const timeAgo = (date: string) => {
@@ -194,6 +256,35 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             style={{ display: 'flex', alignItems: 'center', height: 34, padding: '0 14px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', fontSize: 13, fontWeight: 600, color: '#21293c', textDecoration: 'none', whiteSpace: 'nowrap' }}>
             Docs
           </Link>
+
+          {ready && (
+            authenticated && userInfo ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, height: 34, padding: '0 10px 0 6px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff' }}>
+                  {userInfo.avatar ? (
+                    <img src={userInfo.avatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%' }} />
+                  ) : (
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#6f7784' }}>
+                      {userInfo.twitter_handle[0]?.toUpperCase()}
+                    </div>
+                  )}
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#21293c' }}>@{userInfo.twitter_handle}</span>
+                </div>
+                <button onClick={logout}
+                  style={{ height: 34, padding: '0 12px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', fontSize: 12, fontWeight: 500, color: '#9b9b9b', cursor: 'pointer' }}>
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => initOAuth({ provider: 'twitter' })}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, height: 34, padding: '0 14px', borderRadius: 20, background: '#0000FF', border: 'none', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+                Sign in
+              </button>
+            )
+          )}
         </div>
       </header>
 
@@ -227,12 +318,30 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           </a>
         </p>
 
-        {project.website_url && (
-          <a href={project.website_url} target="_blank" rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: 48, borderRadius: 24, border: '1px solid #e8e8e8', background: '#fff', fontSize: 16, fontWeight: 600, color: '#21293c', textDecoration: 'none', marginBottom: 20 }}>
-            Visit website
-          </a>
-        )}
+        {/* Action buttons row */}
+        <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+          {project.website_url && (
+            <a href={project.website_url} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, height: 48, borderRadius: 24, border: '1px solid #e8e8e8', background: '#fff', fontSize: 16, fontWeight: 600, color: '#21293c', textDecoration: 'none' }}>
+              Visit website
+            </a>
+          )}
+          <button onClick={handleUpvote}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              height: 48, padding: '0 24px', borderRadius: 24,
+              border: hasUpvoted ? '2px solid #0000FF' : '1px solid #e8e8e8',
+              background: hasUpvoted ? '#f0f0ff' : '#fff',
+              color: hasUpvoted ? '#0000FF' : '#4b587c',
+              fontSize: 16, fontWeight: 600, cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="18 15 12 9 6 15" />
+            </svg>
+            Upvote ({project.upvotes})
+          </button>
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 14, color: '#6f7784', fontWeight: 500 }}>
@@ -303,9 +412,48 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             Discussion ({comments.length})
           </h2>
 
+          {/* Comment input */}
+          <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+              {userInfo?.avatar ? (
+                <img src={userInfo.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+              ) : (
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#6f7784' }}>
+                  {userInfo ? userInfo.twitter_handle[0]?.toUpperCase() : '?'}
+                </span>
+              )}
+            </div>
+            <div style={{ flex: 1 }}>
+              <textarea
+                value={commentText}
+                onChange={e => setCommentText(e.target.value)}
+                placeholder={authenticated ? "What do you think?" : "Sign in with X to comment..."}
+                disabled={!authenticated}
+                style={{
+                  width: '100%', minHeight: 60, padding: '10px 14px', borderRadius: 12,
+                  border: '1px solid #e8e8e8', background: '#fafafa', fontSize: 14,
+                  fontFamily: 'inherit', resize: 'vertical', outline: 'none',
+                  color: '#21293c', boxSizing: 'border-box',
+                }}
+                onFocus={e => { if (!authenticated) { e.target.blur(); initOAuth({ provider: 'twitter' }); } }}
+              />
+              {commentText.trim() && (
+                <button onClick={handleComment} disabled={submittingComment}
+                  style={{
+                    marginTop: 8, height: 34, padding: '0 16px', borderRadius: 20,
+                    background: '#0000FF', border: 'none', fontSize: 13, fontWeight: 600,
+                    color: '#fff', cursor: submittingComment ? 'not-allowed' : 'pointer',
+                    opacity: submittingComment ? 0.6 : 1,
+                  }}>
+                  {submittingComment ? 'Posting...' : 'Comment'}
+                </button>
+              )}
+            </div>
+          </div>
+
           {comments.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
-              <p style={{ fontSize: 14, color: '#9b9b9b' }}>No comments yet</p>
+              <p style={{ fontSize: 14, color: '#9b9b9b' }}>No comments yet — be the first!</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -315,11 +463,29 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                     {c.twitter_handle[0]?.toUpperCase()}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <a href={`https://x.com/${c.twitter_handle}`} target="_blank" rel="noopener noreferrer"
                         style={{ fontSize: 14, fontWeight: 600, color: '#21293c', textDecoration: 'none' }}>
                         @{c.twitter_handle}
                       </a>
+                      {c.is_agent && (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 3,
+                          padding: '1px 6px', borderRadius: 4, background: '#f0f0ff',
+                          fontSize: 11, fontWeight: 600, color: '#0000FF',
+                        }}>
+                          🤖 agent
+                        </span>
+                      )}
+                      {c.is_agent === false && (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 3,
+                          padding: '1px 6px', borderRadius: 4, background: '#f5f5f5',
+                          fontSize: 11, fontWeight: 600, color: '#6f7784',
+                        }}>
+                          👤
+                        </span>
+                      )}
                       <span style={{ fontSize: 12, color: '#9b9b9b' }}>{timeAgo(c.created_at)}</span>
                     </div>
                     <p style={{ fontSize: 14, color: '#6f7784', margin: '4px 0 0', lineHeight: 1.5 }}>{c.content}</p>

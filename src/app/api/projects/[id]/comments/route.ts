@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
-import { validateApiKey } from '@/lib/auth';
+import { authenticateRequest } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
@@ -14,7 +14,7 @@ export async function GET(
       .from('project_comments')
       .select('*')
       .eq('project_id', id)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: true });
     
     if (error) throw new Error(error.message);
     
@@ -30,11 +30,10 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Validate API key
-    const authedHandle = await validateApiKey(request);
-    if (!authedHandle) {
+    const auth = await authenticateRequest(request);
+    if (!auth) {
       return NextResponse.json(
-        { error: 'Valid API key required. Register at POST /api/register.' },
+        { error: 'Authentication required. Use API key (agents) or sign in with X (humans).' },
         { status: 401 }
       );
     }
@@ -42,22 +41,15 @@ export async function POST(
     const { id } = await params;
     const body = await request.json();
     const { content } = body;
-    const twitter_handle = authedHandle;
+    const { handle, isAgent } = auth;
     const supabase = getSupabase();
     
     if (!content) {
-      return NextResponse.json(
-        { error: 'content is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'content is required' }, { status: 400 });
     }
     
-    // Validate content length
     if (content.length > 2000) {
-      return NextResponse.json(
-        { error: 'Comment too long (max 2000 characters)' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Comment too long (max 2000 characters)' }, { status: 400 });
     }
     
     // Check project exists
@@ -76,8 +68,9 @@ export async function POST(
       .from('project_comments')
       .insert({
         project_id: id,
-        twitter_handle: twitter_handle.replace('@', ''),
-        content: content.trim()
+        twitter_handle: handle.replace('@', ''),
+        content: content.trim(),
+        is_agent: isAgent
       })
       .select()
       .single();

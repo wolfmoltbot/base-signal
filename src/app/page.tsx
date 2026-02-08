@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { usePrivy, useLoginWithOAuth } from '@privy-io/react-auth';
 
 interface Project {
   id: string;
@@ -13,11 +14,41 @@ interface Project {
   upvotes: number;
 }
 
+interface UserInfo {
+  twitter_handle: string;
+  name: string;
+  avatar: string | null;
+}
+
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [upvoted, setUpvoted] = useState<Set<string>>(new Set());
+  const [voting, setVoting] = useState<Set<string>>(new Set());
+
+  const { ready, authenticated, logout, getAccessToken } = usePrivy();
+  const { initOAuth } = useLoginWithOAuth();
 
   useEffect(() => { fetchProjects(); }, []);
+
+  // Fetch user info when authenticated
+  const fetchUserInfo = useCallback(async () => {
+    if (!authenticated) { setUserInfo(null); return; }
+    try {
+      const token = await getAccessToken();
+      if (!token) return;
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUserInfo(data);
+      }
+    } catch (e) { console.error(e); }
+  }, [authenticated, getAccessToken]);
+
+  useEffect(() => { if (ready && authenticated) fetchUserInfo(); }, [ready, authenticated, fetchUserInfo]);
 
   const fetchProjects = async () => {
     try {
@@ -26,6 +57,36 @@ export default function Home() {
       setProjects(data.projects || []);
     } catch (e) { console.error(e); }
     setLoading(false);
+  };
+
+  const handleUpvote = async (projectId: string) => {
+    if (!authenticated) {
+      initOAuth({ provider: 'twitter' });
+      return;
+    }
+    if (voting.has(projectId)) return;
+
+    setVoting(prev => new Set(prev).add(projectId));
+    try {
+      const token = await getAccessToken();
+      const res = await fetch(`/api/projects/${projectId}/upvote`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProjects(prev => prev.map(p =>
+          p.id === projectId ? { ...p, upvotes: data.upvotes } : p
+        ));
+        setUpvoted(prev => {
+          const next = new Set(prev);
+          if (data.action === 'added') next.add(projectId);
+          else next.delete(projectId);
+          return next;
+        });
+      }
+    } catch (e) { console.error(e); }
+    setVoting(prev => { const n = new Set(prev); n.delete(projectId); return n; });
   };
 
   const hueFrom = (s: string) => s.charCodeAt(0) * 7 % 360;
@@ -44,6 +105,35 @@ export default function Home() {
             style={{ display: 'flex', alignItems: 'center', height: 34, padding: '0 14px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', fontSize: 13, fontWeight: 600, color: '#21293c', textDecoration: 'none', whiteSpace: 'nowrap' }}>
             Docs
           </Link>
+
+          {ready && (
+            authenticated && userInfo ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, height: 34, padding: '0 10px 0 6px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff' }}>
+                  {userInfo.avatar ? (
+                    <img src={userInfo.avatar} alt="" style={{ width: 22, height: 22, borderRadius: '50%' }} />
+                  ) : (
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#6f7784' }}>
+                      {userInfo.twitter_handle[0]?.toUpperCase()}
+                    </div>
+                  )}
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#21293c' }}>@{userInfo.twitter_handle}</span>
+                </div>
+                <button onClick={logout}
+                  style={{ height: 34, padding: '0 12px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', fontSize: 12, fontWeight: 500, color: '#9b9b9b', cursor: 'pointer' }}>
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => initOAuth({ provider: 'twitter' })}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, height: 34, padding: '0 14px', borderRadius: 20, background: '#0000FF', border: 'none', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+                Sign in
+              </button>
+            )
+          )}
         </div>
       </header>
 
@@ -88,6 +178,7 @@ export default function Home() {
           <div>
             {projects.map((p, i) => {
               const hue = hueFrom(p.name);
+              const isUpvoted = upvoted.has(p.id);
               return (
                 <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 0', borderBottom: '1px solid #f0f0f0' }}>
 
@@ -114,26 +205,30 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <div style={{
-                    flexShrink: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: 48,
-                    height: 56,
-                    borderRadius: 10,
-                    border: '1px solid #e8e8e8',
-                    background: '#ffffff',
-                    color: '#4b587c',
-                    padding: 0,
-                    gap: 2,
-                  }}>
+                  <button
+                    onClick={() => handleUpvote(p.id)}
+                    style={{
+                      flexShrink: 0,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 48,
+                      height: 56,
+                      borderRadius: 10,
+                      border: isUpvoted ? '2px solid #0000FF' : '1px solid #e8e8e8',
+                      background: isUpvoted ? '#f0f0ff' : '#ffffff',
+                      color: isUpvoted ? '#0000FF' : '#4b587c',
+                      padding: 0,
+                      gap: 2,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="18 15 12 9 6 15" />
                     </svg>
                     <span style={{ fontSize: 12, fontWeight: 700, lineHeight: 1 }}>{p.upvotes}</span>
-                  </div>
+                  </button>
                 </div>
               );
             })}
