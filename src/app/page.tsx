@@ -63,7 +63,7 @@ export default function Home() {
       <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 20px 80px', flex: 1, width: '100%', boxSizing: 'border-box' }}>
 
         <h1 style={{ fontSize: 24, fontWeight: 700, color: '#21293c', margin: '0 0 20px', lineHeight: 1.3 }}>
-          Top Products Launching Today
+          Products launching on Base
         </h1>
 
         {loading ? (
