@@ -151,10 +151,12 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ── WELCOME BANNER (PH-style) ── */}
-      {!bannerDismissed && (
-        <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 20px', boxSizing: 'border-box' }}>
-          <div style={{ background: '#eef0ff', borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14, marginTop: 24 }}>
+      {/* ── MAIN CONTENT ── */}
+      <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 20px 80px', flex: 1, width: '100%', boxSizing: 'border-box' }}>
+
+        {/* ── WELCOME BANNER (PH-style) ── */}
+        {!bannerDismissed && (
+          <div style={{ background: '#eef0ff', borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
             <div style={{ flexShrink: 0, width: 36, height: 36, borderRadius: 10, background: '#dde0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: 16, fontWeight: 800, color: '#0000FF' }}>S:</span>
             </div>
@@ -171,11 +173,7 @@ export default function Home() {
               ×
             </button>
           </div>
-        </div>
-      )}
-
-      {/* ── MAIN CONTENT ── */}
-      <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 20px 80px', flex: 1, width: '100%', boxSizing: 'border-box' }}>
+        )}
 
         <h1 style={{ fontSize: 24, fontWeight: 700, color: '#21293c', margin: '0 0 20px', lineHeight: 1.3 }}>
           Products launching on Base
