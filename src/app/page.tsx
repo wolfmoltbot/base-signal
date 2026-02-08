@@ -115,17 +115,8 @@ export default function Home() {
       <header style={{ position: 'sticky', top: 0, zIndex: 50, background: '#ffffff', borderBottom: '1px solid #e8e8e8' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', height: 56, gap: 12 }}>
 
-          {/* Hamburger */}
-          <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#21293c" strokeWidth="2" strokeLinecap="round">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-
           {/* Logo */}
-          <Link href="/" style={{ flexShrink: 0 }}>
+          <Link href="/" style={{ flexShrink: 0, textDecoration: 'none' }}>
             <span style={{ fontWeight: 800, fontSize: 18, color: "#0000FF", lineHeight: 1, whiteSpace: "nowrap" }}>sonarbot :</span>
           </Link>
 
@@ -134,8 +125,8 @@ export default function Home() {
           {/* Launch button */}
           <button
             onClick={() => verified ? setShowSubmit(true) : setShowAuth(true)}
-            style={{ display: 'flex', alignItems: 'center', height: 34, padding: '0 14px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', fontSize: 14, fontWeight: 600, color: '#21293c', cursor: 'pointer', gap: 6 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            style={{ display: 'flex', alignItems: 'center', height: 34, padding: '0 14px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', fontSize: 13, fontWeight: 600, color: '#21293c', cursor: 'pointer', gap: 5, whiteSpace: 'nowrap' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
             </svg>
             Launch
@@ -144,16 +135,11 @@ export default function Home() {
           {/* Sign in */}
           <button
             onClick={() => setShowAuth(true)}
-            style={{ display: 'flex', alignItems: 'center', height: 34, padding: '0 16px', borderRadius: 20, background: '#0000FF', border: 'none', fontSize: 14, fontWeight: 600, color: '#fff', cursor: 'pointer', gap: 6 }}>
+            style={{ display: 'flex', alignItems: 'center', height: 34, padding: '0 14px', borderRadius: 20, background: '#0000FF', border: 'none', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', gap: 5, whiteSpace: 'nowrap', flexShrink: 0 }}>
             {verified ? (
               `@${userHandle}`
             ) : (
-              <>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
-                </svg>
-                Sign in
-              </>
+              'Sign in'
             )}
           </button>
         </div>
