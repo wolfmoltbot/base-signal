@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
 import { authenticateRequest } from '@/lib/auth';
 import { verifyPayment } from '@/lib/verifyPayment';
+import { checkTxAlreadyUsed, verifyTxFreshness } from '@/lib/txValidation';
 
 // POST - Confirm subscription payment
 export async function POST(request: NextRequest) {
@@ -28,28 +29,25 @@ export async function POST(request: NextRequest) {
     // Clean up tx hash format
     const cleanTxHash = tx_hash.startsWith('0x') ? tx_hash : `0x${tx_hash}`;
 
-    const supabase = getSupabase();
-
-    // Check if transaction hash already used
-    const { data: existingPayment } = await supabase
-      .from('subscription_payments')
-      .select('id, status')
-      .eq('tx_hash', cleanTxHash)
-      .single();
-
-    if (existingPayment) {
-      if (existingPayment.status === 'verified') {
-        return NextResponse.json(
-          { error: 'Transaction hash already used for verified payment' },
-          { status: 409 }
-        );
-      } else {
-        return NextResponse.json(
-          { error: 'Transaction hash already submitted. Status: ' + existingPayment.status },
-          { status: 409 }
-        );
-      }
+    // Check if tx_hash already used across ALL payment types
+    const alreadyUsed = await checkTxAlreadyUsed(cleanTxHash);
+    if (alreadyUsed) {
+      return NextResponse.json(
+        { error: alreadyUsed },
+        { status: 409 }
+      );
     }
+
+    // Verify transaction is fresh (max 10 minutes old)
+    const freshness = await verifyTxFreshness(cleanTxHash, 600);
+    if (!freshness.fresh) {
+      return NextResponse.json(
+        { error: freshness.error },
+        { status: 400 }
+      );
+    }
+
+    const supabase = getSupabase();
 
     // Insert pending payment record
     const { error: insertError } = await supabase

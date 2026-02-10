@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
 import { authenticateRequest } from '@/lib/auth';
 import { verifySpotPayment } from '@/lib/verifySpotPayment';
+import { checkTxAlreadyUsed, verifyTxFreshness } from '@/lib/txValidation';
 
 // POST /api/sponsored/confirm — Verify payment and activate a spot
 export async function POST(request: NextRequest) {
@@ -20,6 +21,26 @@ export async function POST(request: NextRequest) {
     if (!booking_id || !tx_hash) {
       return NextResponse.json(
         { error: 'Missing required fields: booking_id, tx_hash' },
+        { status: 400 }
+      );
+    }
+
+    const cleanTxHash = tx_hash.startsWith('0x') ? tx_hash : `0x${tx_hash}`;
+
+    // Check if tx_hash already used across ALL payment types
+    const alreadyUsed = await checkTxAlreadyUsed(cleanTxHash);
+    if (alreadyUsed) {
+      return NextResponse.json(
+        { error: alreadyUsed },
+        { status: 409 }
+      );
+    }
+
+    // Verify transaction is fresh (max 10 minutes old)
+    const freshness = await verifyTxFreshness(cleanTxHash, 600);
+    if (!freshness.fresh) {
+      return NextResponse.json(
+        { error: freshness.error },
         { status: 400 }
       );
     }
@@ -65,7 +86,7 @@ export async function POST(request: NextRequest) {
     const paymentToken = spot.payment_token as 'USDC' | 'SNR';
     const expectedAmount = Number(spot.payment_amount);
 
-    const verification = await verifySpotPayment(tx_hash, paymentToken, expectedAmount);
+    const verification = await verifySpotPayment(cleanTxHash, paymentToken, expectedAmount);
 
     if (!verification.valid) {
       return NextResponse.json(
@@ -80,7 +101,7 @@ export async function POST(request: NextRequest) {
       .update({
         status: 'active',
         active: true,
-        tx_hash,
+        tx_hash: cleanTxHash,
         usdc_paid: paymentToken === 'USDC' ? expectedAmount : 0,
         hold_expires_at: null,
       })
