@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
 
-// POST /api/admin/epoch - Calculate and distribute weekly rewards (admin only)
+// POST /api/admin/epoch - Calculate and distribute weekly rewards with curation scoring (admin only)
 export async function POST(request: NextRequest) {
   try {
     // Check admin API key
@@ -17,14 +17,14 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = getSupabase();
-    
+
     // Calculate epoch dates (last Monday 00:00 UTC to Sunday 23:59 UTC)
     const now = new Date();
     const lastMonday = new Date(now);
     const daysToMonday = (lastMonday.getDay() + 6) % 7; // Monday = 0
     lastMonday.setDate(lastMonday.getDate() - daysToMonday - 7); // Go back to last week's Monday
     lastMonday.setUTCHours(0, 0, 0, 0);
-    
+
     const lastSunday = new Date(lastMonday);
     lastSunday.setDate(lastSunday.getDate() + 6);
     lastSunday.setUTCHours(23, 59, 59, 999);
@@ -35,102 +35,202 @@ export async function POST(request: NextRequest) {
     });
 
     // Check if rewards for this epoch already exist
-    const { data: existingRewards } = await supabase
-      .from('weekly_rewards')
-      .select('id')
-      .eq('epoch_start', lastMonday.toISOString())
-      .limit(1);
+    try {
+      const { data: existingRewards } = await supabase
+        .from('weekly_rewards')
+        .select('id')
+        .eq('epoch_start', lastMonday.toISOString())
+        .limit(1);
 
-    if (existingRewards && existingRewards.length > 0) {
-      return NextResponse.json(
-        { error: 'Rewards for this epoch have already been calculated' },
-        { status: 409 }
-      );
-    }
-
-    // Get top 3 products by upvotes in the epoch range
-    const { data: topProducts, error: productsError } = await supabase
-      .from('project_upvotes')
-      .select(`
-        project_id,
-        projects!inner(id, name, twitter_handle)
-      `)
-      .gte('created_at', lastMonday.toISOString())
-      .lte('created_at', lastSunday.toISOString());
-
-    if (productsError) {
-      console.error('Error fetching upvotes:', productsError);
-      return NextResponse.json({ error: 'Failed to fetch upvotes' }, { status: 500 });
-    }
-
-    // Count upvotes per product
-    const productUpvotes = new Map<string, { count: number; project: any }>();
-    
-    if (topProducts) {
-      for (const upvote of topProducts) {
-        const projectId = upvote.project_id;
-        const existing = productUpvotes.get(projectId);
-        if (existing) {
-          existing.count++;
-        } else {
-          productUpvotes.set(projectId, {
-            count: 1,
-            project: upvote.projects
-          });
-        }
+      if (existingRewards && existingRewards.length > 0) {
+        return NextResponse.json(
+          { error: 'Rewards for this epoch have already been calculated' },
+          { status: 409 }
+        );
       }
+    } catch (e) {
+      console.error('Error checking existing rewards (table may not exist):', e);
     }
 
-    // Sort products by upvote count and get top 3
-    const sortedProducts = Array.from(productUpvotes.values())
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3);
-
-    // Get top 10 products for curator calculation
-    const top10Products = Array.from(productUpvotes.values())
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10)
-      .map(p => p.project.id);
-
-    // Get top 20 curators (users who upvoted products in top 10)
-    let topCurators: string[] = [];
-    if (top10Products.length > 0) {
-      const { data: curatorUpvotes, error: curatorsError } = await supabase
+    // ── Step 1: Get all upvotes for the epoch week ──
+    let upvotesData: { project_id: string; twitter_handle: string; created_at: string }[] = [];
+    try {
+      const { data, error } = await supabase
         .from('project_upvotes')
-        .select('twitter_handle, project_id')
-        .in('project_id', top10Products)
+        .select('project_id, twitter_handle, created_at')
         .gte('created_at', lastMonday.toISOString())
         .lte('created_at', lastSunday.toISOString());
 
-      if (!curatorsError && curatorUpvotes) {
-        // Count how many top-10 products each user upvoted
-        const curatorScores = new Map<string, number>();
-        for (const upvote of curatorUpvotes) {
-          const handle = upvote.twitter_handle;
-          curatorScores.set(handle, (curatorScores.get(handle) || 0) + 1);
-        }
+      if (error) {
+        console.error('Error fetching upvotes:', error);
+        return NextResponse.json({ error: 'Failed to fetch upvotes: ' + error.message }, { status: 500 });
+      }
+      upvotesData = data || [];
+    } catch (e) {
+      console.error('Error querying project_upvotes:', e);
+      return NextResponse.json({ error: 'Failed to query project_upvotes table' }, { status: 500 });
+    }
 
-        // Sort by score and get top 20
-        topCurators = Array.from(curatorScores.entries())
-          .sort(([, a], [, b]) => b - a)
-          .slice(0, 20)
-          .map(([handle]) => handle);
+    // ── Step 2: Get all comments for the epoch week ──
+    let commentsData: { project_id: string; twitter_handle: string; created_at: string; content: string }[] = [];
+    try {
+      const { data, error } = await supabase
+        .from('project_comments')
+        .select('project_id, twitter_handle, created_at, content')
+        .gte('created_at', lastMonday.toISOString())
+        .lte('created_at', lastSunday.toISOString());
+
+      if (error) {
+        console.error('Error fetching comments:', error);
+        // Comments table might not exist, continue without comments
+      } else {
+        commentsData = data || [];
+      }
+    } catch (e) {
+      console.error('Error querying project_comments:', e);
+    }
+
+    // ── Step 3: Get product created_at dates for early discovery bonus ──
+    const allProjectIds = new Set<string>();
+    for (const u of upvotesData) allProjectIds.add(u.project_id);
+    for (const c of commentsData) allProjectIds.add(c.project_id);
+
+    const projectCreatedAt: Record<string, string> = {};
+    const projectNames: Record<string, string> = {};
+    const projectHandles: Record<string, string> = {};
+
+    if (allProjectIds.size > 0) {
+      try {
+        const { data: projects } = await supabase
+          .from('projects')
+          .select('id, name, twitter_handle, created_at')
+          .in('id', Array.from(allProjectIds));
+
+        if (projects) {
+          for (const p of projects) {
+            projectCreatedAt[p.id] = p.created_at;
+            projectNames[p.id] = p.name;
+            projectHandles[p.id] = p.twitter_handle;
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching project details:', e);
       }
     }
 
-    // Prepare rewards for insertion
-    const rewards = [];
-    const rewardAmounts = [100000, 50000, 25000]; // #1, #2, #3 rewards
+    // ── Step 4: Rank products by upvote count ──
+    const productUpvoteCounts = new Map<string, number>();
+    for (const u of upvotesData) {
+      productUpvoteCounts.set(u.project_id, (productUpvoteCounts.get(u.project_id) || 0) + 1);
+    }
+
+    const rankedProducts = Array.from(productUpvoteCounts.entries())
+      .sort(([, a], [, b]) => b - a);
+
+    // Build rank lookup: project_id -> rank (1-indexed)
+    const productRank: Record<string, number> = {};
+    rankedProducts.forEach(([projectId], idx) => {
+      productRank[projectId] = idx + 1;
+    });
+
+    // ── Step 5: Scoring functions ──
+    function getUpvotePoints(rank: number): number {
+      if (rank === 1) return 10;
+      if (rank === 2) return 8;
+      if (rank === 3) return 6;
+      if (rank >= 4 && rank <= 10) return 3;
+      return 0;
+    }
+
+    function getCommentPoints(rank: number): number {
+      if (rank >= 1 && rank <= 3) return 5;
+      if (rank >= 4 && rank <= 10) return 2;
+      return 0;
+    }
+
+    function isEarlyDiscovery(actionCreatedAt: string, productId: string): boolean {
+      const productDate = projectCreatedAt[productId];
+      if (!productDate) return false;
+      const productTime = new Date(productDate).getTime();
+      const actionTime = new Date(actionCreatedAt).getTime();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+      return (actionTime - productTime) <= twentyFourHours && (actionTime - productTime) >= 0;
+    }
+
+    // ── Step 6: Calculate each curator's score ──
+    const curatorScores = new Map<string, number>();
+
+    // Score upvotes
+    for (const u of upvotesData) {
+      const rank = productRank[u.project_id];
+      if (!rank) continue;
+      let points = getUpvotePoints(rank);
+      if (points > 0 && isEarlyDiscovery(u.created_at, u.project_id)) {
+        points *= 2;
+      }
+      if (points > 0) {
+        curatorScores.set(u.twitter_handle, (curatorScores.get(u.twitter_handle) || 0) + points);
+      }
+    }
+
+    // Score comments (min 20 chars, only 1 per product per user counts)
+    const commentedProductsByUser = new Map<string, Set<string>>();
+    for (const c of commentsData) {
+      if (c.content.length < 20) continue;
+
+      const userKey = c.twitter_handle;
+      if (!commentedProductsByUser.has(userKey)) {
+        commentedProductsByUser.set(userKey, new Set());
+      }
+      const userProducts = commentedProductsByUser.get(userKey)!;
+      if (userProducts.has(c.project_id)) continue; // Already counted this product
+      userProducts.add(c.project_id);
+
+      const rank = productRank[c.project_id];
+      if (!rank) continue;
+      let points = getCommentPoints(rank);
+      if (points > 0 && isEarlyDiscovery(c.created_at, c.project_id)) {
+        points *= 2;
+      }
+      if (points > 0) {
+        curatorScores.set(c.twitter_handle, (curatorScores.get(c.twitter_handle) || 0) + points);
+      }
+    }
+
+    // ── Step 7: Get top 20 curators and distribute proportionally ──
+    const CURATOR_POOL = 50000;
+    const sortedCurators = Array.from(curatorScores.entries())
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 20);
+
+    const totalCuratorScore = sortedCurators.reduce((sum, [, score]) => sum + score, 0);
+
+    const curatorRewards: { handle: string; score: number; reward: number }[] = [];
+    if (totalCuratorScore > 0) {
+      for (const [handle, score] of sortedCurators) {
+        const reward = Math.floor((score / totalCuratorScore) * CURATOR_POOL);
+        if (reward > 0) {
+          curatorRewards.push({ handle, score, reward });
+        }
+      }
+    }
+
+    // ── Step 8: Top 3 products ──
+    const top3Products = rankedProducts.slice(0, 3);
+    const rewardAmounts = [100000, 50000, 25000];
     const rewardTypes = ['product_of_week', 'runner_up', 'third_place'];
 
+    // ── Step 9: Prepare and insert rewards ──
+    const rewards = [];
+
     // Product rewards
-    for (let i = 0; i < Math.min(sortedProducts.length, 3); i++) {
-      const product = sortedProducts[i];
+    for (let i = 0; i < Math.min(top3Products.length, 3); i++) {
+      const [projectId, upvoteCount] = top3Products[i];
       rewards.push({
         epoch_start: lastMonday.toISOString(),
         epoch_end: lastSunday.toISOString(),
-        product_id: product.project.id,
-        twitter_handle: product.project.twitter_handle,
+        product_id: projectId,
+        twitter_handle: projectHandles[projectId] || null,
         reward_type: rewardTypes[i],
         snr_amount: rewardAmounts[i],
         claimed: false,
@@ -138,15 +238,15 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Curator rewards (2500 $SNR each)
-    for (const curatorHandle of topCurators) {
+    // Curator rewards (proportional)
+    for (const curator of curatorRewards) {
       rewards.push({
         epoch_start: lastMonday.toISOString(),
         epoch_end: lastSunday.toISOString(),
         product_id: null,
-        twitter_handle: curatorHandle,
+        twitter_handle: curator.handle,
         reward_type: 'curator',
-        snr_amount: 2500,
+        snr_amount: curator.reward,
         claimed: false,
         wallet_address: null
       });
@@ -154,19 +254,24 @@ export async function POST(request: NextRequest) {
 
     // Insert rewards
     if (rewards.length > 0) {
-      const { error: insertError } = await supabase
-        .from('weekly_rewards')
-        .insert(rewards);
+      try {
+        const { error: insertError } = await supabase
+          .from('weekly_rewards')
+          .insert(rewards);
 
-      if (insertError) {
-        console.error('Error inserting rewards:', insertError);
-        return NextResponse.json({ error: 'Failed to insert rewards' }, { status: 500 });
+        if (insertError) {
+          console.error('Error inserting rewards:', insertError);
+          return NextResponse.json({ error: 'Failed to insert rewards: ' + insertError.message }, { status: 500 });
+        }
+      } catch (e) {
+        console.error('Error inserting into weekly_rewards:', e);
+        return NextResponse.json({ error: 'Failed to insert into weekly_rewards table' }, { status: 500 });
       }
     }
 
     // Calculate totals
-    const productRewardsTotal = sortedProducts.slice(0, 3).reduce((sum, _, i) => sum + rewardAmounts[i], 0);
-    const curatorRewardsTotal = topCurators.length * 2500;
+    const productRewardsTotal = top3Products.slice(0, 3).reduce((sum, _, i) => sum + rewardAmounts[i], 0);
+    const curatorRewardsTotal = curatorRewards.reduce((sum, c) => sum + c.reward, 0);
     const totalRewards = productRewardsTotal + curatorRewardsTotal;
 
     return NextResponse.json({
@@ -175,23 +280,30 @@ export async function POST(request: NextRequest) {
         start: lastMonday.toISOString(),
         end: lastSunday.toISOString()
       },
-      top_products: sortedProducts.slice(0, 3).map((p, i) => ({
+      top_products: top3Products.map(([projectId, upvoteCount], i) => ({
         rank: i + 1,
-        name: p.project.name,
-        handle: p.project.twitter_handle,
-        upvotes: p.count,
+        name: projectNames[projectId] || projectId,
+        handle: projectHandles[projectId] || null,
+        upvotes: upvoteCount,
         reward: rewardAmounts[i]
       })),
-      top_curators: {
-        count: topCurators.length,
-        handles: topCurators,
-        reward_each: 2500
+      top_curators: curatorRewards.map((c, i) => ({
+        rank: i + 1,
+        handle: c.handle,
+        score: c.score,
+        reward: c.reward
+      })),
+      scoring_summary: {
+        total_products_ranked: rankedProducts.length,
+        total_curators_scored: curatorScores.size,
+        total_upvotes_processed: upvotesData.length,
+        total_comments_processed: commentsData.length
       },
       summary: {
         total_rewards_distributed: totalRewards,
         product_rewards: productRewardsTotal,
         curator_rewards: curatorRewardsTotal,
-        burned: 15000 // As per tokenomics plan
+        burned: 15000
       }
     });
   } catch (error) {

@@ -13,7 +13,7 @@ export default function Footer() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: '#6f7784' }}>
           <Link href="/docs" style={{ color: '#6f7784', textDecoration: 'none' }}>Docs</Link>
-          <Link href="/tokenomics" style={{ color: '#6f7784', textDecoration: 'none' }}>Tokenomics</Link>
+          <Link href="/curation" style={{ color: '#6f7784', textDecoration: 'none' }}>Curation</Link>
           <a href="https://x.com/sonarbotxyz" target="_blank" rel="noopener noreferrer" style={{ color: '#6f7784', textDecoration: 'none' }}>@sonarbotxyz</a>
         </div>
       </div>

@@ -58,7 +58,7 @@ export default function Header({ activePage }: HeaderProps) {
 
   const navLinks = [
     { href: '/leaderboard', label: 'Leaderboard', key: 'leaderboard' },
-    { href: '/tokenomics', label: 'Tokenomics', key: 'tokenomics' },
+    { href: '/curation', label: 'Curation', key: 'curation' },
     { href: '/docs', label: 'Docs', key: 'docs' },
   ];
 

@@ -388,7 +388,7 @@ curl "https://www.sonarbot.xyz/api/projects?category=defi"`}</Code>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 13, color: '#6f7784' }}>
             <Link href="/leaderboard" style={{ color: '#6f7784', textDecoration: 'none' }}>Leaderboard</Link>
-            <Link href="/tokenomics" style={{ color: '#6f7784', textDecoration: 'none' }}>Tokenomics</Link>
+            <Link href="/curation" style={{ color: '#6f7784', textDecoration: 'none' }}>Curation</Link>
             <a href="https://x.com/sonarbotxyz" target="_blank" rel="noopener noreferrer" style={{ color: '#6f7784', textDecoration: 'none' }}>@sonarbotxyz</a>
           </div>
         </div>

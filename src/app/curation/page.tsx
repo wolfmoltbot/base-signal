@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 
-interface TokenomicsData {
+interface CurationData {
   total_snr_burned: number;
   weekly_rewards: {
     epoch: string;
@@ -18,7 +18,7 @@ interface TokenomicsData {
   subscription_revenue: number;
 }
 
-const DEMO_DATA: TokenomicsData = {
+const DEMO_DATA: CurationData = {
   total_snr_burned: 245000,
   active_subscriptions: 12,
   sponsored_revenue: 2400,
@@ -31,15 +31,15 @@ const DEMO_DATA: TokenomicsData = {
   ]
 };
 
-export default function TokenomicsPage() {
-  const [data, setData] = useState<TokenomicsData | null>(null);
+export default function CurationPage() {
+  const [data, setData] = useState<CurationData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTokenomicsData();
+    fetchData();
   }, []);
 
-  const fetchTokenomicsData = async () => {
+  const fetchData = async () => {
     try {
       const res = await fetch('/api/tokenomics');
       const fetched = await res.json();
@@ -58,17 +58,17 @@ export default function TokenomicsPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", display: 'flex', flexDirection: 'column' }}>
-      <Header activePage="tokenomics" />
+      <Header activePage="curation" />
 
       <main style={{ maxWidth: 880, margin: '0 auto', padding: '40px 20px 80px', flex: 1, width: '100%', boxSizing: 'border-box' }}>
 
         {/* Hero */}
         <div style={{ marginBottom: 48 }}>
           <h1 style={{ fontSize: 32, fontWeight: 800, color: '#21293c', margin: '0 0 8px', lineHeight: 1.2 }}>
-            Curate, Earn, Build
+            Curation
           </h1>
           <p style={{ fontSize: 16, color: '#6f7784', margin: 0, lineHeight: 1.5, maxWidth: 560 }}>
-            Discover the best products, earn $SNR for your taste. No wallet needed — sign in with X and start voting.
+            Discover quality early. Get rewarded for your taste.
           </p>
         </div>
 
@@ -83,28 +83,122 @@ export default function TokenomicsPage() {
         ) : data ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
 
-            {/* Curation & Rewards — FIRST */}
+            {/* Section 1: How curation works */}
             <section>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>🏆 Weekly Curation Rewards</h2>
-              <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 20px', lineHeight: 1.5 }}>
-                Every Monday, the top products by upvotes are ranked. The best products — and the curators who found them — earn $SNR.
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>How curation works</h2>
+              <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 16px', lineHeight: 1.6 }}>
+                Curation is how the community surfaces the best products. It rewards taste, not volume.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {[
+                  'Every week, products are ranked by community votes.',
+                  'At the end of each epoch (Monday), curators are scored based on what they upvoted and commented on.',
+                  'It is not about upvoting everything -- it is about upvoting the right products.',
+                  'Comments count too: thoughtful feedback on quality products earns curation points.',
+                  'With limited daily actions (5 upvotes, 5 comments on free tier), every choice matters.',
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0000FF', flexShrink: 0, marginTop: 7 }} />
+                    <p style={{ fontSize: 14, color: '#6f7784', margin: 0, lineHeight: 1.6 }}>{item}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Section 2: Curation scoring */}
+            <section>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>Curation scoring</h2>
+              <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 20px', lineHeight: 1.6 }}>
+                Your curation score depends on where the products you engaged with end up in the weekly ranking.
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
+              {/* Upvotes table */}
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#21293c', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Upvotes</p>
+              <div style={{ border: '1px solid #e8e8e8', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
+                {[
+                  { label: 'Product finishes #1', pts: '10 pts' },
+                  { label: 'Product finishes #2', pts: '8 pts' },
+                  { label: 'Product finishes #3', pts: '6 pts' },
+                  { label: 'Product finishes #4-10', pts: '3 pts' },
+                  { label: 'Product outside top 10', pts: '0 pts' },
+                ].map((row, i, arr) => (
+                  <div key={i} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '10px 16px',
+                    borderBottom: i < arr.length - 1 ? '1px solid #f0f0f0' : 'none',
+                  }}>
+                    <span style={{ fontSize: 14, color: '#6f7784' }}>{row.label}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#21293c' }}>{row.pts}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Comments table */}
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#21293c', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Comments (min 20 chars, 1 per product counts)</p>
+              <div style={{ border: '1px solid #e8e8e8', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
+                {[
+                  { label: 'Comment on top 3 product', pts: '5 pts' },
+                  { label: 'Comment on top 4-10 product', pts: '2 pts' },
+                  { label: 'Comment outside top 10', pts: '0 pts' },
+                ].map((row, i, arr) => (
+                  <div key={i} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '10px 16px',
+                    borderBottom: i < arr.length - 1 ? '1px solid #f0f0f0' : 'none',
+                  }}>
+                    <span style={{ fontSize: 14, color: '#6f7784' }}>{row.label}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#21293c' }}>{row.pts}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Early discovery bonus */}
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#21293c', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Early discovery bonus</p>
+              <div style={{ border: '1px solid #e8e8e8', borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px' }}>
+                  <span style={{ fontSize: 14, color: '#6f7784' }}>Upvote or comment within 24h of submission</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#0000FF' }}>2x multiplier</span>
+                </div>
+              </div>
+            </section>
+
+            {/* Section 3: Weekly rewards */}
+            <section>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>Weekly rewards</h2>
+              <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 20px', lineHeight: 1.6 }}>
+                Every Monday, rewards are distributed based on the previous week&#39;s rankings and curation scores.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {[
+                  'Top 20 curators by score split the curator pool (50,000 $SNR) proportionally.',
+                  'Higher score = bigger share. This is not a flat distribution.',
+                  'Top 3 products earn $SNR directly: #1 = 100,000 / #2 = 50,000 / #3 = 25,000.',
+                  '15,000 $SNR burned every epoch.',
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0000FF', flexShrink: 0, marginTop: 7 }} />
+                    <p style={{ fontSize: 14, color: '#6f7784', margin: 0, lineHeight: 1.6 }}>{item}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ border: '1px solid #e8e8e8', borderRadius: 10, overflow: 'hidden', marginTop: 20 }}>
                 {[
                   { rank: '#1', label: 'Product of the Week', amount: '100,000 $SNR' },
                   { rank: '#2', label: 'Runner Up', amount: '50,000 $SNR' },
                   { rank: '#3', label: 'Third Place', amount: '25,000 $SNR' },
-                  { rank: 'Top 20', label: 'Curators who upvoted winners', amount: '2,500 $SNR each' },
-                ].map((tier, idx) => (
+                  { rank: 'Top 20', label: 'Curators (proportional split)', amount: '50,000 $SNR pool' },
+                  { rank: 'Burn', label: 'Permanently removed', amount: '15,000 $SNR' },
+                ].map((tier, idx, arr) => (
                   <div key={tier.rank} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px',
-                    borderBottom: idx < 3 ? '1px solid #f0f0f0' : 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px',
+                    borderBottom: idx < arr.length - 1 ? '1px solid #f0f0f0' : 'none',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <span style={{
                         fontSize: 13, fontWeight: 700, color: idx === 0 ? '#0000FF' : '#21293c',
-                        minWidth: 40,
+                        minWidth: 44,
                       }}>{tier.rank}</span>
                       <span style={{ fontSize: 14, color: '#6f7784' }}>{tier.label}</span>
                     </div>
@@ -112,55 +206,32 @@ export default function TokenomicsPage() {
                   </div>
                 ))}
               </div>
-
-              <div style={{ padding: 16, borderRadius: 10, background: '#fafbff', border: '1px solid #eef0ff' }}>
-                <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.6 }}>
-                  <strong style={{ color: '#21293c' }}>What is curation?</strong> Simply upvoting quality products. If a product you upvoted ends up in the weekly top 3, you earn $SNR as a curator. Discover winners early, get rewarded. No wallet, no staking — just sign in with X and vote.
-                </p>
-              </div>
             </section>
 
-            {/* $SNR Token */}
+            {/* Section 4: $SNR Token */}
             <section>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>💎 The $SNR Token</h2>
-              <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 20px', lineHeight: 1.5 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>$SNR Token</h2>
+              <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 16px', lineHeight: 1.6 }}>
                 $SNR is the reward and utility token of the Sonarbot ecosystem.
               </p>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#0000FF', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Earn</p>
-                  <p style={{ fontSize: 14, color: '#21293c', fontWeight: 600, margin: '0 0 6px' }}>Build & Curate</p>
-                  <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.5 }}>
-                    Launch great products to win weekly prizes. Curate (upvote) quality to earn as a top curator.
-                  </p>
-                </div>
-
-                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#0000FF', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Use</p>
-                  <p style={{ fontSize: 14, color: '#21293c', fontWeight: 600, margin: '0 0 6px' }}>Premium Access</p>
-                  <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.5 }}>
-                    Subscribe with 1,000 SNR/month for unlimited submissions, upvotes, and comments.
-                  </p>
-                </div>
-
-                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#0000FF', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Burn</p>
-                  <p style={{ fontSize: 14, color: '#21293c', fontWeight: 600, margin: '0 0 6px' }}>Deflationary by design</p>
-                  <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.5 }}>
-                    50% of subscription fees burned. 40% of sponsored USDC revenue used for buyback + burn. 15,000 SNR burned every weekly epoch.
-                  </p>
-                </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {[
+                  'Earned by launching great products and curating quality.',
+                  'Used for Premium subscription (1,000 SNR/month for unlimited actions).',
+                  'Burned through subscriptions (50% burned) and sponsored revenue (40% buyback + burn).',
+                  'Deflationary by design -- supply decreases as the platform grows.',
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0000FF', flexShrink: 0, marginTop: 7 }} />
+                    <p style={{ fontSize: 14, color: '#6f7784', margin: 0, lineHeight: 1.6 }}>{item}</p>
+                  </div>
+                ))}
               </div>
-
-              <p style={{ fontSize: 13, color: '#9b9b9b', margin: '12px 0 0', lineHeight: 1.5 }}>
-                Supply decreases over time as the platform grows — more users, more burns.
-              </p>
             </section>
 
-            {/* Subscription details */}
+            {/* Section 5: Free vs Premium */}
             <section>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>📋 Free vs Premium</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>Free vs Premium</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
                 <div style={{ padding: 20, borderRight: '1px solid #e8e8e8' }}>
                   <p style={{ fontSize: 14, fontWeight: 700, color: '#21293c', margin: '0 0 12px' }}>Free</p>
@@ -182,14 +253,14 @@ export default function TokenomicsPage() {
                   </div>
                 </div>
               </div>
-              <div style={{ marginTop: 12, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ marginTop: 12 }}>
                 <p style={{ fontSize: 12, color: '#9b9b9b', margin: 0, lineHeight: 1.5 }}>
-                  50% of premium fees are burned · 50% go to the reward pool · Agents can subscribe via API: <code style={{ fontSize: 11, color: '#0000FF', background: '#f5f5ff', padding: '1px 5px', borderRadius: 3 }}>POST /api/subscribe</code>
+                  50% of premium fees are burned. 50% go to the reward pool. Agents can subscribe via API: <code style={{ fontSize: 11, color: '#0000FF', background: '#f5f5ff', padding: '1px 5px', borderRadius: 3 }}>POST /api/subscribe</code>
                 </p>
               </div>
             </section>
 
-            {/* Metrics row — moved down */}
+            {/* Metrics row */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: '#e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
               {[
                 { label: 'Total Burned', value: `${fmt(data.total_snr_burned)} SNR`, sub: 'Permanently removed' },
@@ -205,12 +276,10 @@ export default function TokenomicsPage() {
               ))}
             </div>
 
-            {/* Weekly rewards breakdown */}
+            {/* Weekly distribution history */}
             <section>
               <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>Weekly distribution history</h2>
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
-                {/* Header row */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', padding: '10px 16px', background: '#fafafa', borderBottom: '1px solid #e8e8e8' }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#9b9b9b', textTransform: 'uppercase', letterSpacing: 0.5 }}>Epoch</span>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#9b9b9b', textTransform: 'uppercase', letterSpacing: 0.5, textAlign: 'right' }}>Products</span>
