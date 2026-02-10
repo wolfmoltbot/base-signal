@@ -323,7 +323,7 @@ export default function Home() {
                   </span>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <Link href={`/project/${productOfWeek.product_id}`} style={{ textDecoration: 'none' }}>
+                  <Link href={`/project/${productOfWeek.project_id}`} style={{ textDecoration: 'none' }}>
                     <h3 style={{ fontSize: 18, fontWeight: 700, color: '#21293c', margin: 0, lineHeight: 1.3 }}>
                       {productOfWeek.project_name}
                     </h3>

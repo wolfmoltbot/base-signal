@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       (sponsoredSpots || []).reduce((sum, spot) => sum + Number(spot.usdc_paid), 0);
 
     // Calculate subscription revenue (estimated)
-    const subscriptionRevenue = Array.isArray(subscriptionsCount) ? subscriptionsCount.length * 1000 : activeSubscriptions * 1000;
+    const subscriptionRevenue = Array.isArray(subscriptionsCount) ? subscriptionsCount.length * 1000 : Number(activeSubscriptions) * 1000;
 
     return NextResponse.json({
       total_snr_burned: totalSnrBurned,

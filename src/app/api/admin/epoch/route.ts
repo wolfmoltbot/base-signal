@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       .map(p => p.project.id);
 
     // Get top 20 curators (users who upvoted products in top 10)
-    let topCurators = [];
+    let topCurators: string[] = [];
     if (top10Products.length > 0) {
       const { data: curatorUpvotes, error: curatorsError } = await supabase
         .from('project_upvotes')
