@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
 
+// ── Reward constants (update manually as taper schedule progresses) ──
+// Launch Week: 500M total (300M product, 150M curators, 50M burn)
+// Weeks 2-4: 150M/week (90M product, 45M curators, 15M burn)
+// Month 2-3: 100M/week (60M product, 30M curators, 10M burn)
+// Month 4-6: 42.5M/week (25M product, 12.5M curators, 5M burn)
+// Month 7-12: 17M/week (10M product, 5M curators, 2M burn)
+// Year 2+: 5M/week (3M product, 1.5M curators, 0.5M burn)
+const PRODUCT_REWARD = 300_000_000;  // #1 Product of the Week — winner takes all
+const CURATOR_POOL = 150_000_000;    // Top 20 curators, proportional by score
+const BURN_AMOUNT = 50_000_000;      // Burned per epoch
+
 // POST /api/admin/epoch - Calculate and distribute weekly rewards with curation scoring (admin only)
 export async function POST(request: NextRequest) {
   try {
@@ -198,7 +209,6 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Step 7: Get top 20 curators and distribute proportionally ──
-    const CURATOR_POOL = 50000;
     const sortedCurators = Array.from(curatorScores.entries())
       .sort(([, a], [, b]) => b - a)
       .slice(0, 20);
@@ -215,24 +225,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ── Step 8: Top 3 products ──
-    const top3Products = rankedProducts.slice(0, 3);
-    const rewardAmounts = [100000, 50000, 25000];
-    const rewardTypes = ['product_of_week', 'runner_up', 'third_place'];
+    // ── Step 8: #1 Product of the Week (winner takes all) ──
+    const winner = rankedProducts.length > 0 ? rankedProducts[0] : null;
 
     // ── Step 9: Prepare and insert rewards ──
     const rewards = [];
 
-    // Product rewards
-    for (let i = 0; i < Math.min(top3Products.length, 3); i++) {
-      const [projectId, upvoteCount] = top3Products[i];
+    // Product reward — only #1
+    if (winner) {
+      const [projectId] = winner;
       rewards.push({
         epoch_start: lastMonday.toISOString(),
         epoch_end: lastSunday.toISOString(),
         product_id: projectId,
         twitter_handle: projectHandles[projectId] || null,
-        reward_type: rewardTypes[i],
-        snr_amount: rewardAmounts[i],
+        reward_type: 'product_of_week',
+        snr_amount: PRODUCT_REWARD,
         claimed: false,
         wallet_address: null
       });
@@ -270,9 +278,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate totals
-    const productRewardsTotal = top3Products.slice(0, 3).reduce((sum, _, i) => sum + rewardAmounts[i], 0);
+    const productRewardsTotal = winner ? PRODUCT_REWARD : 0;
     const curatorRewardsTotal = curatorRewards.reduce((sum, c) => sum + c.reward, 0);
-    const totalRewards = productRewardsTotal + curatorRewardsTotal;
+    const totalRewards = productRewardsTotal + curatorRewardsTotal + BURN_AMOUNT;
 
     return NextResponse.json({
       success: true,
@@ -280,13 +288,12 @@ export async function POST(request: NextRequest) {
         start: lastMonday.toISOString(),
         end: lastSunday.toISOString()
       },
-      top_products: top3Products.map(([projectId, upvoteCount], i) => ({
-        rank: i + 1,
-        name: projectNames[projectId] || projectId,
-        handle: projectHandles[projectId] || null,
-        upvotes: upvoteCount,
-        reward: rewardAmounts[i]
-      })),
+      product_of_week: winner ? {
+        name: projectNames[winner[0]] || winner[0],
+        handle: projectHandles[winner[0]] || null,
+        upvotes: winner[1],
+        reward: PRODUCT_REWARD
+      } : null,
       top_curators: curatorRewards.map((c, i) => ({
         rank: i + 1,
         handle: c.handle,
@@ -303,7 +310,7 @@ export async function POST(request: NextRequest) {
         total_rewards_distributed: totalRewards,
         product_rewards: productRewardsTotal,
         curator_rewards: curatorRewardsTotal,
-        burned: 15000
+        burned: BURN_AMOUNT
       }
     });
   } catch (error) {

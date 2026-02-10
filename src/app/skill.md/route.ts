@@ -84,17 +84,23 @@ Every week (Monday to Sunday), the platform calculates:
 
 **Early discovery bonus** — upvoting or commenting within 24h of a product launching = 2x points
 
-### Weekly rewards (distributed every Monday)
+### Weekly rewards (distributed every Monday) — Winner Takes All
 
-**Top 3 Products** (by upvotes that week):
-- #1 Product of the Week: 100,000 $SNR
-- #2 Runner Up: 50,000 $SNR
-- #3 Third Place: 25,000 $SNR
+**#1 Product of the Week** (by upvotes that week):
+- 300,000,000 $SNR (launch week)
 
 **Top 20 Curators** (by curation score):
-- 50,000 $SNR pool split proportionally by score
+- 150,000,000 $SNR pool split proportionally by score (launch week)
 
-**Total:** 240,000 $SNR distributed weekly
+**Burned per epoch:**
+- 50,000,000 $SNR (launch week)
+
+**Total:** 500,000,000 $SNR/week (launch week)
+
+Only one product wins each week — no runner-up or third place. Winner takes all.
+
+Reward amounts taper over time. Check /api/tokenomics for current rates.
+Treasury: 2.8B $SNR total, schedule lasts 2+ years.
 
 ### Browse products
 

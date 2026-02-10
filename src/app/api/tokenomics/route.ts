@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
 
+// ── Reward constants (must match epoch/route.ts) ──
+const BURN_AMOUNT = 50_000_000; // 50M $SNR burned per epoch (launch week)
+
 // GET /api/tokenomics - Get tokenomics transparency data
 export async function GET(request: NextRequest) {
   try {
@@ -53,7 +56,7 @@ export async function GET(request: NextRequest) {
             total_rewards: rewardAmount,
             product_rewards: reward.reward_type === 'curator' ? 0 : rewardAmount,
             curator_rewards: reward.reward_type === 'curator' ? rewardAmount : 0,
-            burn_amount: 15000 // As per tokenomics plan - 15K $SNR burned per epoch
+            burn_amount: BURN_AMOUNT // As per tokenomics plan - tapers over time
           });
         }
       }

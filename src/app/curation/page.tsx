@@ -18,37 +18,33 @@ const DEMO_WEEKS: WeeklyDistribution[] = [
     epoch: '2026-W07',
     dateRange: 'Feb 3 – Feb 9',
     products: [
-      { rank: 1, name: '0xSwarm', handle: '@0xSwarmAI', amount: '100,000' },
-      { rank: 2, name: 'Lobster Trap', handle: '@LobsterTrapAI', amount: '50,000' },
-      { rank: 3, name: 'AgentPaint', handle: '@AgentPaintAI', amount: '25,000' },
+      { rank: 1, name: '0xSwarm', handle: '@0xSwarmAI', amount: '300,000,000' },
     ],
     curators: [
-      { rank: 1, handle: '@alpha_hunter', score: 48, amount: '8,200' },
-      { rank: 2, handle: '@signal_seeker', score: 36, amount: '6,150' },
-      { rank: 3, handle: '@defi_scout', score: 32, amount: '5,470' },
-      { rank: 4, handle: '@agent_finder', score: 28, amount: '4,780' },
-      { rank: 5, handle: '@crypto_curator', score: 24, amount: '4,100' },
+      { rank: 1, handle: '@alpha_hunter', score: 48, amount: '24,600,000' },
+      { rank: 2, handle: '@signal_seeker', score: 36, amount: '18,450,000' },
+      { rank: 3, handle: '@defi_scout', score: 32, amount: '16,400,000' },
+      { rank: 4, handle: '@agent_finder', score: 28, amount: '14,350,000' },
+      { rank: 5, handle: '@crypto_curator', score: 24, amount: '12,300,000' },
     ],
     additionalCurators: 15,
-    burned: '15,000',
+    burned: '50,000,000',
   },
   {
     epoch: '2026-W06',
     dateRange: 'Jan 27 – Feb 2',
     products: [
-      { rank: 1, name: 'ChainScope', handle: '@ChainScopeAI', amount: '100,000' },
-      { rank: 2, name: 'Yield Oracle', handle: '@YieldOracleAI', amount: '50,000' },
-      { rank: 3, name: 'TxMapper', handle: '@TxMapperAI', amount: '25,000' },
+      { rank: 1, name: 'ChainScope', handle: '@ChainScopeAI', amount: '300,000,000' },
     ],
     curators: [
-      { rank: 1, handle: '@defi_scout', score: 52, amount: '8,900' },
-      { rank: 2, handle: '@alpha_hunter', score: 44, amount: '7,500' },
-      { rank: 3, handle: '@onchain_dev', score: 38, amount: '6,480' },
-      { rank: 4, handle: '@signal_seeker', score: 30, amount: '5,120' },
-      { rank: 5, handle: '@base_builder', score: 22, amount: '3,750' },
+      { rank: 1, handle: '@defi_scout', score: 52, amount: '26,700,000' },
+      { rank: 2, handle: '@alpha_hunter', score: 44, amount: '22,600,000' },
+      { rank: 3, handle: '@onchain_dev', score: 38, amount: '19,500,000' },
+      { rank: 4, handle: '@signal_seeker', score: 30, amount: '15,400,000' },
+      { rank: 5, handle: '@base_builder', score: 22, amount: '11,300,000' },
     ],
     additionalCurators: 15,
-    burned: '15,000',
+    burned: '50,000,000',
   },
 ];
 
@@ -216,27 +212,36 @@ export default function CurationPage() {
 
           {/* Rewards */}
           <section>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 16px' }}>Weekly rewards</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '0 0 16px' }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: 0 }}>Weekly rewards</h2>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', background: '#0000FF', padding: '3px 10px', borderRadius: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Launch Week</span>
+            </div>
+
+            <div style={{ padding: '16px', borderRadius: 10, background: '#eeeeff', marginBottom: 16 }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#0000FF', margin: '0 0 4px' }}>500,000,000 $SNR this week — winner takes all</p>
+              <p style={{ fontSize: 13, color: '#6f7784', margin: 0 }}>Only one product wins. No runner-up, no third place. The #1 Product of the Week takes the entire product reward.</p>
+            </div>
 
             <div style={{ border: '1px solid #e8e8e8', borderRadius: 10, overflow: 'hidden' }}>
               {[
-                { left: '#1 Product of the Week', right: '100,000 $SNR' },
-                { left: '#2 Runner Up', right: '50,000 $SNR' },
-                { left: '#3 Third Place', right: '25,000 $SNR' },
-                { left: 'Top 20 Curators (proportional)', right: '50,000 $SNR pool' },
-                { left: 'Burned per epoch', right: '15,000 $SNR' },
+                { left: '#1 Product of the Week', right: '300M $SNR' },
+                { left: 'Top 20 Curators (proportional)', right: '150M $SNR pool' },
+                { left: 'Burned per epoch', right: '50M $SNR' },
               ].map((r, i, a) => (
                 <div key={i} style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 14px',
                   borderBottom: i < a.length - 1 ? '1px solid #f0f0f0' : 'none',
                 }}>
-                  <span style={{ fontSize: 14, color: i === 4 ? '#9b9b9b' : '#6f7784', fontWeight: i === 0 ? 600 : 400 }}>{r.left}</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: i === 4 ? '#0000FF' : '#21293c' }}>{r.right}</span>
+                  <span style={{ fontSize: 14, color: i === 2 ? '#9b9b9b' : '#6f7784', fontWeight: i === 0 ? 600 : 400 }}>{r.left}</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: i === 2 ? '#0000FF' : '#21293c' }}>{r.right}</span>
                 </div>
               ))}
             </div>
             <p style={{ fontSize: 13, color: '#9b9b9b', margin: '10px 0 0', lineHeight: 1.5 }}>
               Curator rewards are proportional to score. A curator with 60 pts earns 3x more than one with 20 pts. Every Monday, all rewards are distributed for the previous week.
+            </p>
+            <p style={{ fontSize: 12, color: '#9b9b9b', margin: '8px 0 0', lineHeight: 1.5 }}>
+              Rewards taper after launch week: 150M/wk (weeks 2–4) → 100M/wk (months 2–3) → 42.5M/wk (months 4–6) → 17M/wk (months 7–12) → 5M/wk (year 2+). Treasury: 2.8B $SNR total.
             </p>
           </section>
 
