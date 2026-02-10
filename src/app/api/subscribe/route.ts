@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
         .eq('twitter_handle', handle);
     }
 
-    // Get payment address from environment
-    const paymentAddress = process.env.SNR_PAYMENT_ADDRESS;
+    // Get payment address from environment (trim any whitespace/newlines)
+    const paymentAddress = process.env.SNR_PAYMENT_ADDRESS?.trim();
     if (!paymentAddress) {
       return NextResponse.json(
         { error: 'Payment system not configured' },

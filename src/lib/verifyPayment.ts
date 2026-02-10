@@ -53,8 +53,8 @@ export async function verifyPayment(txHash: string): Promise<PaymentVerification
     // ERC-20 Transfer event topic
     const transferEventTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
     
-    // Get payment address from environment
-    const paymentAddress = process.env.SNR_PAYMENT_ADDRESS;
+    // Get payment address from environment (trim any whitespace/newlines)
+    const paymentAddress = process.env.SNR_PAYMENT_ADDRESS?.trim();
     if (!paymentAddress) {
       throw new Error('SNR_PAYMENT_ADDRESS not configured');
     }
