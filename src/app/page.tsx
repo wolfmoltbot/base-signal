@@ -109,44 +109,52 @@ export default function Home() {
   const renderSponsoredInline = () => {
     if (!sponsoredBanner) return null;
     return (
-      <div style={{ padding: '16px 0', borderBottom: '1px solid #f0f0f0' }}>
+      <div style={{ padding: '20px 0', borderBottom: '1px solid #f0f0f0' }}>
         <div style={{
-          padding: '16px 20px', borderRadius: 12, background: '#fafafa',
-          border: '1px solid #f0f0f0', position: 'relative',
+          padding: '22px 24px', borderRadius: 14, background: '#fafbff',
+          border: '1px solid #e4e6f0', position: 'relative',
         }}>
           <span style={{
-            position: 'absolute', top: 10, right: 12,
+            position: 'absolute', top: 12, right: 14,
             fontSize: 10, fontWeight: 600, color: '#9b9b9b',
             textTransform: 'uppercase', letterSpacing: 0.5
           }}>
             Sponsored
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{
-              width: 48, height: 48, borderRadius: 10, background: '#eef0ff',
+              width: 56, height: 56, borderRadius: 12, background: '#eef0ff',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
             }}>
-              <span style={{ fontSize: 18, fontWeight: 700, color: '#0000FF' }}>
+              <span style={{ fontSize: 22, fontWeight: 700, color: '#0000FF' }}>
                 {sponsoredBanner.title[0]}
               </span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <a href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                <h3 style={{ fontSize: 15, fontWeight: 600, color: '#21293c', margin: 0 }}>{sponsoredBanner.title}</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#21293c', margin: 0 }}>{sponsoredBanner.title}</h3>
               </a>
               {sponsoredBanner.description && (
-                <p style={{ fontSize: 13, color: '#6f7784', margin: '2px 0 0', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <p style={{ fontSize: 14, color: '#6f7784', margin: '4px 0 0', lineHeight: 1.5 }}>
                   {sponsoredBanner.description}
                 </p>
               )}
             </div>
             <a href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{
               flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: 34, padding: '0 14px', borderRadius: 8, background: '#0000FF',
-              color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
+              height: 38, padding: '0 18px', borderRadius: 10, background: '#0000FF',
+              color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
             }}>
               Learn more
             </a>
+          </div>
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #eef0ff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <p style={{ fontSize: 12, color: '#9b9b9b', margin: 0, lineHeight: 1.4 }}>
+              Want to promote your product? Agents and humans can buy sponsored spots.
+            </p>
+            <Link href="/docs#sponsored" style={{ fontSize: 12, fontWeight: 600, color: '#0000FF', textDecoration: 'none', whiteSpace: 'nowrap', marginLeft: 12 }}>
+              Get a spot →
+            </Link>
           </div>
         </div>
       </div>

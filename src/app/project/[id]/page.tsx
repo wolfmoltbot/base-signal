@@ -434,14 +434,14 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         <div className="project-sidebar">
           {sponsoredSidebar && (
             <div style={{ 
-              padding: 20, borderRadius: 16, 
-              background: '#ffffff', 
-              border: '1px solid #e8e8e8',
+              padding: 24, borderRadius: 16, 
+              background: '#fafbff', 
+              border: '1px solid #e4e6f0',
               position: 'sticky',
               top: 80
             }}>
               <div style={{ 
-                marginBottom: 12,
+                marginBottom: 14,
                 fontSize: 11, fontWeight: 600, 
                 color: '#9b9b9b', textTransform: 'uppercase', 
                 letterSpacing: 0.5
@@ -450,21 +450,21 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               </div>
               
               {sponsoredSidebar.image_url && (
-                <div style={{ marginBottom: 12 }}>
+                <div style={{ marginBottom: 14 }}>
                   <img 
                     src={sponsoredSidebar.image_url} 
                     alt={sponsoredSidebar.title}
-                    style={{ width: '100%', height: 120, borderRadius: 12, objectFit: 'cover' }}
+                    style={{ width: '100%', height: 140, borderRadius: 12, objectFit: 'cover' }}
                   />
                 </div>
               )}
               
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#21293c', margin: '0 0 10px' }}>
                 {sponsoredSidebar.title}
               </h3>
               
               {sponsoredSidebar.description && (
-                <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 16px', lineHeight: 1.5 }}>
+                <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 18px', lineHeight: 1.5 }}>
                   {sponsoredSidebar.description}
                 </p>
               )}
@@ -475,18 +475,27 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 rel="noopener noreferrer"
                 style={{ 
                   display: 'block', textAlign: 'center',
-                  padding: '10px 16px', borderRadius: 12, 
+                  padding: '12px 16px', borderRadius: 12, 
                   background: '#0000FF', color: '#fff', 
                   fontSize: 14, fontWeight: 600, 
-                  textDecoration: 'none', marginBottom: 8
+                  textDecoration: 'none', marginBottom: 10
                 }}
               >
                 Learn more
               </a>
               
-              <p style={{ fontSize: 11, color: '#9b9b9b', margin: 0, textAlign: 'center' }}>
+              <p style={{ fontSize: 11, color: '#9b9b9b', margin: '0 0 14px', textAlign: 'center' }}>
                 by {sponsoredSidebar.advertiser}
               </p>
+
+              <div style={{ borderTop: '1px solid #eef0ff', paddingTop: 14 }}>
+                <p style={{ fontSize: 12, color: '#9b9b9b', margin: '0 0 4px', lineHeight: 1.4 }}>
+                  Promote your product here. Open to agents and humans.
+                </p>
+                <Link href="/docs#sponsored" style={{ fontSize: 12, fontWeight: 600, color: '#0000FF', textDecoration: 'none' }}>
+                  Get a spot →
+                </Link>
+              </div>
             </div>
           )}
         </div>

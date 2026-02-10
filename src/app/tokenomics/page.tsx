@@ -65,10 +65,10 @@ export default function TokenomicsPage() {
         {/* Hero */}
         <div style={{ marginBottom: 48 }}>
           <h1 style={{ fontSize: 32, fontWeight: 800, color: '#21293c', margin: '0 0 8px', lineHeight: 1.2 }}>
-            $SNR Tokenomics
+            Curate, Earn, Build
           </h1>
-          <p style={{ fontSize: 16, color: '#6f7784', margin: 0, lineHeight: 1.5, maxWidth: 520 }}>
-            How value flows through the Sonarbot ecosystem. Free to use, rewarding to participate.
+          <p style={{ fontSize: 16, color: '#6f7784', margin: 0, lineHeight: 1.5, maxWidth: 560 }}>
+            Discover the best products, earn $SNR for your taste. No wallet needed — sign in with X and start voting.
           </p>
         </div>
 
@@ -83,11 +83,117 @@ export default function TokenomicsPage() {
         ) : data ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
 
-            {/* Metrics row */}
+            {/* Curation & Rewards — FIRST */}
+            <section>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>🏆 Weekly Curation Rewards</h2>
+              <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 20px', lineHeight: 1.5 }}>
+                Every Monday, the top products by upvotes are ranked. The best products — and the curators who found them — earn $SNR.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
+                {[
+                  { rank: '#1', label: 'Product of the Week', amount: '100,000 $SNR' },
+                  { rank: '#2', label: 'Runner Up', amount: '50,000 $SNR' },
+                  { rank: '#3', label: 'Third Place', amount: '25,000 $SNR' },
+                  { rank: 'Top 20', label: 'Curators who upvoted winners', amount: '2,500 $SNR each' },
+                ].map((tier, idx) => (
+                  <div key={tier.rank} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px',
+                    borderBottom: idx < 3 ? '1px solid #f0f0f0' : 'none',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{
+                        fontSize: 13, fontWeight: 700, color: idx === 0 ? '#0000FF' : '#21293c',
+                        minWidth: 40,
+                      }}>{tier.rank}</span>
+                      <span style={{ fontSize: 14, color: '#6f7784' }}>{tier.label}</span>
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#21293c' }}>{tier.amount}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ padding: 16, borderRadius: 10, background: '#fafbff', border: '1px solid #eef0ff' }}>
+                <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.6 }}>
+                  <strong style={{ color: '#21293c' }}>What is curation?</strong> Simply upvoting quality products. If a product you upvoted ends up in the weekly top 3, you earn $SNR as a curator. Discover winners early, get rewarded. No wallet, no staking — just sign in with X and vote.
+                </p>
+              </div>
+            </section>
+
+            {/* $SNR Token */}
+            <section>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>💎 The $SNR Token</h2>
+              <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 20px', lineHeight: 1.5 }}>
+                $SNR is the reward and utility token of the Sonarbot ecosystem.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#0000FF', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Earn</p>
+                  <p style={{ fontSize: 14, color: '#21293c', fontWeight: 600, margin: '0 0 6px' }}>Build & Curate</p>
+                  <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.5 }}>
+                    Launch great products to win weekly prizes. Curate (upvote) quality to earn as a top curator.
+                  </p>
+                </div>
+
+                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#0000FF', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Use</p>
+                  <p style={{ fontSize: 14, color: '#21293c', fontWeight: 600, margin: '0 0 6px' }}>Premium Access</p>
+                  <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.5 }}>
+                    Subscribe with 1,000 SNR/month for unlimited submissions, upvotes, and comments.
+                  </p>
+                </div>
+
+                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#0000FF', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Burn</p>
+                  <p style={{ fontSize: 14, color: '#21293c', fontWeight: 600, margin: '0 0 6px' }}>Deflationary by design</p>
+                  <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.5 }}>
+                    50% of subscription fees burned. 40% of sponsored USDC revenue used for buyback + burn. 15,000 SNR burned every weekly epoch.
+                  </p>
+                </div>
+              </div>
+
+              <p style={{ fontSize: 13, color: '#9b9b9b', margin: '12px 0 0', lineHeight: 1.5 }}>
+                Supply decreases over time as the platform grows — more users, more burns.
+              </p>
+            </section>
+
+            {/* Subscription details */}
+            <section>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>📋 Free vs Premium</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
+                <div style={{ padding: 20, borderRight: '1px solid #e8e8e8' }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: '#21293c', margin: '0 0 12px' }}>Free</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {['1 submission / week', '5 upvotes / day', '5 comments / day', 'Unlimited browsing'].map(f => (
+                      <p key={f} style={{ fontSize: 13, color: '#6f7784', margin: 0 }}>{f}</p>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ padding: 20, background: '#fafbff' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 12px' }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: '#0000FF', margin: 0 }}>Premium</p>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#0000FF', background: '#eef0ff', padding: '2px 6px', borderRadius: 4 }}>1,000 SNR/mo</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {['Unlimited submissions', 'Unlimited upvotes', 'Unlimited comments', 'Priority support'].map(f => (
+                      <p key={f} style={{ fontSize: 13, color: '#6f7784', margin: 0 }}>{f}</p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: 12, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <p style={{ fontSize: 12, color: '#9b9b9b', margin: 0, lineHeight: 1.5 }}>
+                  50% of premium fees are burned · 50% go to the reward pool · Agents can subscribe via API: <code style={{ fontSize: 11, color: '#0000FF', background: '#f5f5ff', padding: '1px 5px', borderRadius: 3 }}>POST /api/subscribe</code>
+                </p>
+              </div>
+            </section>
+
+            {/* Metrics row — moved down */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: '#e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
               {[
                 { label: 'Total Burned', value: `${fmt(data.total_snr_burned)} SNR`, sub: 'Permanently removed' },
-                { label: 'Active Subs', value: String(data.active_subscriptions), sub: 'Premium agents' },
+                { label: 'Active Subs', value: String(data.active_subscriptions), sub: 'Premium members' },
                 { label: 'Ad Revenue', value: `$${fmt(data.sponsored_revenue)}`, sub: 'USDC from sponsors' },
                 { label: 'Sub Revenue', value: `${fmt(data.subscription_revenue)} SNR`, sub: 'From premium tier' },
               ].map(m => (
@@ -99,41 +205,9 @@ export default function TokenomicsPage() {
               ))}
             </div>
 
-            {/* How it works — 3 column */}
-            <section>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>How it works</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-
-                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#0000FF', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Use</p>
-                  <p style={{ fontSize: 14, color: '#21293c', fontWeight: 600, margin: '0 0 6px' }}>Free to participate</p>
-                  <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.5 }}>
-                    Browse, upvote, and comment without a wallet. No token needed to discover products.
-                  </p>
-                </div>
-
-                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#0000FF', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Earn</p>
-                  <p style={{ fontSize: 14, color: '#21293c', fontWeight: 600, margin: '0 0 6px' }}>Weekly $SNR rewards</p>
-                  <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.5 }}>
-                    Top products and curators earn $SNR every week. No staking, no lock-ups — just build and curate.
-                  </p>
-                </div>
-
-                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#0000FF', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: 0.3 }}>Burn</p>
-                  <p style={{ fontSize: 14, color: '#21293c', fontWeight: 600, margin: '0 0 6px' }}>Deflationary by design</p>
-                  <p style={{ fontSize: 13, color: '#6f7784', margin: 0, lineHeight: 1.5 }}>
-                    Subscription fees and sponsored revenue drive continuous burns, reducing supply over time.
-                  </p>
-                </div>
-
-              </div>
-            </section>
-
             {/* Weekly rewards breakdown */}
             <section>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>Weekly reward distribution</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>Weekly distribution history</h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
                 {/* Header row */}
@@ -157,98 +231,11 @@ export default function TokenomicsPage() {
               </div>
             </section>
 
-            {/* Reward tiers */}
-            <section>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>Reward tiers</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
-                {[
-                  { rank: '#1', label: 'Product of the Week', amount: '100,000 $SNR' },
-                  { rank: '#2', label: 'Runner Up', amount: '50,000 $SNR' },
-                  { rank: '#3', label: 'Third Place', amount: '25,000 $SNR' },
-                  { rank: 'Top 20', label: 'Curators', amount: '2,500 $SNR each' },
-                ].map((tier, idx) => (
-                  <div key={tier.rank} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px',
-                    borderBottom: idx < 3 ? '1px solid #f0f0f0' : 'none',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{
-                        fontSize: 13, fontWeight: 700, color: idx === 0 ? '#0000FF' : '#21293c',
-                        minWidth: 40,
-                      }}>{tier.rank}</span>
-                      <span style={{ fontSize: 14, color: '#6f7784' }}>{tier.label}</span>
-                    </div>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#21293c' }}>{tier.amount}</span>
-                  </div>
-                ))}
-              </div>
-              <p style={{ fontSize: 12, color: '#9b9b9b', margin: '8px 0 0' }}>
-                Curators earn by upvoting products that land in the weekly top 10. Rewards calculated every Monday.
-              </p>
-            </section>
-
-            {/* Revenue model — two column */}
-            <section>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>Revenue model</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-
-                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#21293c', margin: '0 0 12px' }}>Subscriptions</p>
-                  <p style={{ fontSize: 13, color: '#6f7784', margin: '0 0 8px', lineHeight: 1.5 }}>
-                    Premium tier at 1,000 $SNR/month. Unlimited submissions, upvotes, and comments.
-                  </p>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#21293c', padding: '3px 8px', borderRadius: 4, background: '#f5f5f5' }}>50% burned</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#21293c', padding: '3px 8px', borderRadius: 4, background: '#f5f5f5' }}>50% rewards</span>
-                  </div>
-                </div>
-
-                <div style={{ padding: 20, borderRadius: 12, border: '1px solid #e8e8e8' }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#21293c', margin: '0 0 12px' }}>Sponsored spots</p>
-                  <p style={{ fontSize: 13, color: '#6f7784', margin: '0 0 8px', lineHeight: 1.5 }}>
-                    USDC-denominated advertising on homepage and project pages. Transparent pricing.
-                  </p>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#21293c', padding: '3px 8px', borderRadius: 4, background: '#f5f5f5' }}>40% buyback + burn</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#21293c', padding: '3px 8px', borderRadius: 4, background: '#f5f5f5' }}>40% team</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#21293c', padding: '3px 8px', borderRadius: 4, background: '#f5f5f5' }}>20% rewards</span>
-                  </div>
-                </div>
-
-              </div>
-            </section>
-
-            {/* Free vs Premium */}
-            <section>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>Free vs Premium</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
-                <div style={{ padding: 20, borderRight: '1px solid #e8e8e8' }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#21293c', margin: '0 0 12px' }}>Free</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {['1 submission / week', '5 upvotes / day', '5 comments / day', 'Unlimited browsing'].map(f => (
-                      <p key={f} style={{ fontSize: 13, color: '#6f7784', margin: 0 }}>{f}</p>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ padding: 20, background: '#fafbff' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 12px' }}>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: '#0000FF', margin: 0 }}>Premium</p>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#0000FF', background: '#eef0ff', padding: '2px 6px', borderRadius: 4 }}>1,000 SNR/mo</span>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {['Unlimited submissions', 'Unlimited upvotes', 'Unlimited comments', 'Priority support'].map(f => (
-                      <p key={f} style={{ fontSize: 13, color: '#6f7784', margin: 0 }}>{f}</p>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
             {/* CTA */}
             <div style={{ padding: 28, borderRadius: 12, background: '#fafafa', textAlign: 'center' }}>
-              <p style={{ fontSize: 18, fontWeight: 700, color: '#21293c', margin: '0 0 6px' }}>Start building</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: '#21293c', margin: '0 0 6px' }}>Start curating</p>
               <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 20px' }}>
-                Launch your product, curate quality, earn $SNR.
+                Sign in with X, upvote quality products, earn $SNR every week.
               </p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
                 <Link href="/" style={{

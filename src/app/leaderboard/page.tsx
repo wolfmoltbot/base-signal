@@ -45,6 +45,7 @@ function formatDateShort(d: Date): string {
 
 export default function LeaderboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   // Current week
@@ -63,7 +64,13 @@ export default function LeaderboardPage() {
     try {
       const res = await fetch('/api/projects?sort=upvotes&limit=100');
       const data = await res.json();
-      setProjects(data.projects || []);
+      const projs = data.projects || [];
+      setProjects(projs);
+      for (const p of projs) {
+        fetch(`/api/projects/${p.id}/comments`).then(r => r.json()).then(d => {
+          setCommentCounts(prev => ({ ...prev, [p.id]: (d.comments || []).length }));
+        }).catch(() => {});
+      }
     } catch (e) { console.error(e); }
     setLoading(false);
   };
@@ -226,6 +233,17 @@ export default function LeaderboardPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Comments */}
+                  <Link href={`/project/${p.id}`} style={{
+                    flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    width: 48, height: 52, color: '#6f7784', textDecoration: 'none', gap: 4,
+                  }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    <span style={{ fontSize: 12, fontWeight: 600, lineHeight: 1 }}>{commentCounts[p.id] || 0}</span>
+                  </Link>
 
                   {/* Upvote count */}
                   <div style={{
