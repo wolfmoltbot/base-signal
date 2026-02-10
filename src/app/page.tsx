@@ -20,6 +20,16 @@ interface UserInfo {
   avatar: string | null;
 }
 
+interface ProductOfWeek {
+  id: string;
+  project_name: string;
+  project_id: string;
+  twitter_handle: string;
+  snr_amount: number;
+  epoch_start: string;
+  epoch_end: string;
+}
+
 const CATEGORY_LABELS: Record<string, string> = {
   agents: 'AI Agents', defi: 'DeFi', infrastructure: 'Infrastructure',
   consumer: 'Consumer', gaming: 'Gaming', social: 'Social', tools: 'Tools', other: 'Other',
@@ -34,12 +44,13 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [productOfWeek, setProductOfWeek] = useState<ProductOfWeek | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { ready, authenticated, logout, getAccessToken } = usePrivy();
   const { initOAuth } = useLoginWithOAuth();
 
-  useEffect(() => { fetchProjects(); }, []);
+  useEffect(() => { fetchProjects(); fetchProductOfWeek(); }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -77,6 +88,18 @@ export default function Home() {
     setLoading(false);
   };
 
+  const fetchProductOfWeek = async () => {
+    try {
+      const res = await fetch('/api/leaderboard');
+      const data = await res.json();
+      const productRewards = data.product_rewards || [];
+      const latestWinner = productRewards.find((r: any) => r.reward_type === 'product_of_week');
+      if (latestWinner) {
+        setProductOfWeek(latestWinner);
+      }
+    } catch (e) { console.error(e); }
+  };
+
   const handleUpvote = async (projectId: string) => {
     if (!authenticated) { initOAuth({ provider: 'twitter' }); return; }
     if (voting.has(projectId)) return;
@@ -111,6 +134,10 @@ export default function Home() {
             <span style={{ fontWeight: 800, fontSize: 18, color: "#0000FF", lineHeight: 1, whiteSpace: "nowrap" }}>sonarbot :</span>
           </Link>
           <div style={{ flex: 1 }} />
+          <Link href="/leaderboard"
+            style={{ display: 'flex', alignItems: 'center', height: 34, padding: '0 14px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', fontSize: 13, fontWeight: 600, color: '#21293c', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            🏆 Leaderboard
+          </Link>
           <Link href="/docs"
             style={{ display: 'flex', alignItems: 'center', height: 34, padding: '0 14px', borderRadius: 20, border: '1px solid #e8e8e8', background: '#fff', fontSize: 13, fontWeight: 600, color: '#21293c', textDecoration: 'none', whiteSpace: 'nowrap' }}>
             Docs
@@ -174,6 +201,62 @@ export default function Home() {
             <button onClick={() => setBannerDismissed(true)} style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#9b9b9b', fontSize: 18, lineHeight: 1 }}>
               ×
             </button>
+          </div>
+        )}
+
+        {/* ── PRODUCT OF THE WEEK ── */}
+        {productOfWeek && (
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <span style={{ fontSize: 24 }}>🏆</span>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: 0 }}>Product of the Week</h2>
+            </div>
+            <div style={{ 
+              padding: 20, borderRadius: 16, 
+              background: 'linear-gradient(135deg, #f0f0ff 0%, #eef0ff 100%)', 
+              border: '2px solid #0000FF', 
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{ 
+                position: 'absolute', top: 12, right: 12,
+                background: '#0000FF', color: '#fff', 
+                fontSize: 11, fontWeight: 700, padding: '4px 10px', 
+                borderRadius: 8, textTransform: 'uppercase', letterSpacing: 0.5
+              }}>
+                Winner
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                <div style={{ 
+                  width: 48, height: 48, borderRadius: 12, 
+                  background: '#0000FF', 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center' 
+                }}>
+                  <span style={{ fontSize: 20, fontWeight: 700, color: '#fff' }}>
+                    {productOfWeek.project_name ? productOfWeek.project_name[0] : '?'}
+                  </span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <Link href={`/project/${productOfWeek.product_id}`} style={{ textDecoration: 'none' }}>
+                    <h3 style={{ fontSize: 18, fontWeight: 700, color: '#21293c', margin: 0, lineHeight: 1.3 }}>
+                      {productOfWeek.project_name}
+                    </h3>
+                  </Link>
+                  <p style={{ fontSize: 14, color: '#6f7784', margin: '4px 0 0' }}>
+                    by @{productOfWeek.twitter_handle} • Earned {productOfWeek.snr_amount.toLocaleString()} $SNR
+                  </p>
+                </div>
+                <Link href="/leaderboard" 
+                  style={{ 
+                    padding: '8px 16px', borderRadius: 20, 
+                    background: '#fff', border: '1px solid #0000FF', 
+                    fontSize: 13, fontWeight: 600, color: '#0000FF', 
+                    textDecoration: 'none', whiteSpace: 'nowrap'
+                  }}>
+                  View all winners →
+                </Link>
+              </div>
+            </div>
           </div>
         )}
 
