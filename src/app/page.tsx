@@ -50,7 +50,6 @@ export default function Home() {
       const data = await res.json();
       const projs = data.projects || [];
       setProjects(projs);
-      // Fetch comment counts for all projects
       for (const p of projs) {
         fetch(`/api/projects/${p.id}/comments`).then(r => r.json()).then(d => {
           setCommentCounts(prev => ({ ...prev, [p.id]: (d.comments || []).length }));
@@ -67,28 +66,18 @@ export default function Home() {
       if (data.active_spot) {
         setSponsoredBanner(data.active_spot);
       } else {
-        // Demo fallback data when API returns nothing
         setSponsoredBanner({
-          id: 'demo',
-          advertiser: 'BasePay',
-          title: 'BasePay',
+          id: 'demo', advertiser: 'BasePay', title: 'BasePay',
           description: 'Instant crypto payments for AI agents. Accept USDC, ETH, and any ERC-20.',
-          url: 'https://basepay.app',
-          image_url: undefined,
-          usdc_paid: 500
+          url: 'https://basepay.app', image_url: undefined, usdc_paid: 500
         });
       }
-    } catch (e) { 
+    } catch (e) {
       console.error(e);
-      // Demo fallback data on error
       setSponsoredBanner({
-        id: 'demo',
-        advertiser: 'BasePay',
-        title: 'BasePay',
+        id: 'demo', advertiser: 'BasePay', title: 'BasePay',
         description: 'Instant crypto payments for AI agents. Accept USDC, ETH, and any ERC-20.',
-        url: 'https://basepay.app',
-        image_url: undefined,
-        usdc_paid: 500
+        url: 'https://basepay.app', image_url: undefined, usdc_paid: 500
       });
     }
   };
@@ -117,15 +106,61 @@ export default function Home() {
 
   const hueFrom = (s: string) => s.charCodeAt(0) * 7 % 360;
 
+  const renderSponsoredInline = () => {
+    if (!sponsoredBanner) return null;
+    return (
+      <div style={{ padding: '16px 0', borderBottom: '1px solid #f0f0f0' }}>
+        <div style={{
+          padding: '16px 20px', borderRadius: 12, background: '#fafafa',
+          border: '1px solid #f0f0f0', position: 'relative',
+        }}>
+          <span style={{
+            position: 'absolute', top: 10, right: 12,
+            fontSize: 10, fontWeight: 600, color: '#9b9b9b',
+            textTransform: 'uppercase', letterSpacing: 0.5
+          }}>
+            Sponsored
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: 10, background: '#eef0ff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <span style={{ fontSize: 18, fontWeight: 700, color: '#0000FF' }}>
+                {sponsoredBanner.title[0]}
+              </span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <a href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                <h3 style={{ fontSize: 15, fontWeight: 600, color: '#21293c', margin: 0 }}>{sponsoredBanner.title}</h3>
+              </a>
+              {sponsoredBanner.description && (
+                <p style={{ fontSize: 13, color: '#6f7784', margin: '2px 0 0', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {sponsoredBanner.description}
+                </p>
+              )}
+            </div>
+            <a href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{
+              flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: 34, padding: '0 14px', borderRadius: 8, background: '#0000FF',
+              color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
+            }}>
+              Learn more
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", display: 'flex', flexDirection: 'column' }}>
 
       <Header activePage="home" />
 
-      {/* ── MAIN CONTENT ── */}
       <main style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 20px 80px', flex: 1, width: '100%', boxSizing: 'border-box' }}>
 
-        {/* ── WELCOME BANNER (PH-style) ── */}
+        {/* Welcome banner */}
         {!bannerDismissed && (
           <div style={{ background: '#eef0ff', borderRadius: 12, padding: '14px 18px', display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 24 }}>
             <div style={{ flexShrink: 0, width: 36, height: 36, borderRadius: 10, background: '#dde0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -145,70 +180,6 @@ export default function Home() {
             <button onClick={() => setBannerDismissed(true)} style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#9b9b9b', fontSize: 18, lineHeight: 1 }}>
               ×
             </button>
-          </div>
-        )}
-
-        {/* ── SPONSORED BANNER ── */}
-        {sponsoredBanner && (
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ 
-              padding: 20, borderRadius: 16, 
-              background: '#ffffff', 
-              border: '1px solid #e8e8e8',
-              position: 'relative'
-            }}>
-              <div style={{ 
-                position: 'absolute', top: 12, right: 12,
-                background: '#f5f5f5', color: '#9b9b9b', 
-                fontSize: 11, fontWeight: 600, padding: '4px 8px', 
-                borderRadius: 6, textTransform: 'uppercase', letterSpacing: 0.5
-              }}>
-                Sponsored
-              </div>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                {sponsoredBanner.image_url && (
-                  <div style={{ flexShrink: 0 }}>
-                    <img 
-                      src={sponsoredBanner.image_url} 
-                      alt={sponsoredBanner.title}
-                      style={{ width: 64, height: 64, borderRadius: 12, objectFit: 'cover' }}
-                    />
-                  </div>
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#21293c', margin: '0 0 6px' }}>
-                    {sponsoredBanner.title}
-                  </h3>
-                  {sponsoredBanner.description && (
-                    <p style={{ fontSize: 15, color: '#6f7784', margin: '0 0 12px', lineHeight: 1.5 }}>
-                      {sponsoredBanner.description}
-                    </p>
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                    <a 
-                      href={sponsoredBanner.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{ 
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
-                        padding: '8px 16px', borderRadius: 20, 
-                        background: '#0000FF', color: '#fff', 
-                        fontSize: 14, fontWeight: 600, 
-                        textDecoration: 'none', whiteSpace: 'nowrap'
-                      }}
-                    >
-                      Check it out
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 6 }}>
-                        <polyline points="9,18 15,12 9,6" />
-                      </svg>
-                    </a>
-                    <span style={{ fontSize: 12, color: '#9b9b9b' }}>
-                      by {sponsoredBanner.advertiser}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
@@ -241,55 +212,56 @@ export default function Home() {
               const isUpvoted = upvoted.has(p.id);
               const cc = commentCounts[p.id] || 0;
               return (
-                <div key={p.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: '18px 0', borderBottom: '1px solid #f0f0f0' }}>
-                  <Link href={`/project/${p.id}`} style={{ flexShrink: 0, marginTop: 2 }}>
-                    {p.logo_url ? (
-                      <img src={p.logo_url} alt="" style={{ width: 60, height: 60, borderRadius: 12, objectFit: 'cover' }} />
-                    ) : (
-                      <div style={{ width: 60, height: 60, borderRadius: 12, background: `hsl(${hue}, 45%, 92%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: 24, fontWeight: 700, color: `hsl(${hue}, 45%, 45%)` }}>{p.name[0]}</span>
-                      </div>
-                    )}
-                  </Link>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <Link href={`/project/${p.id}`} style={{ textDecoration: 'none' }}>
-                      <h2 style={{ fontSize: 16, fontWeight: 600, color: '#21293c', margin: 0, lineHeight: 1.3 }}>{i + 1}. {p.name}</h2>
+                <div key={p.id}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: '18px 0', borderBottom: '1px solid #f0f0f0' }}>
+                    <Link href={`/project/${p.id}`} style={{ flexShrink: 0, marginTop: 2 }}>
+                      {p.logo_url ? (
+                        <img src={p.logo_url} alt="" style={{ width: 60, height: 60, borderRadius: 12, objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: 60, height: 60, borderRadius: 12, background: `hsl(${hue}, 45%, 92%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 24, fontWeight: 700, color: `hsl(${hue}, 45%, 45%)` }}>{p.name[0]}</span>
+                        </div>
+                      )}
                     </Link>
-                    <p style={{ fontSize: 14, color: '#6f7784', margin: '3px 0 0', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.tagline}</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 12, color: '#9b9b9b', padding: '2px 8px', borderRadius: 4, background: '#f5f5f5', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                        {CATEGORY_LABELS[p.category] || p.category}
-                      </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <Link href={`/project/${p.id}`} style={{ textDecoration: 'none' }}>
+                        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#21293c', margin: 0, lineHeight: 1.3 }}>{i + 1}. {p.name}</h2>
+                      </Link>
+                      <p style={{ fontSize: 14, color: '#6f7784', margin: '3px 0 0', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.tagline}</p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 12, color: '#9b9b9b', padding: '2px 8px', borderRadius: 4, background: '#f5f5f5' }}>
+                          {CATEGORY_LABELS[p.category] || p.category}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ flexShrink: 0, display: 'flex', alignItems: 'stretch', gap: 0, marginTop: 6 }}>
+                      <Link href={`/project/${p.id}`} style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        width: 52, height: 60, color: '#6f7784', textDecoration: 'none', gap: 4,
+                      }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <span style={{ fontSize: 13, fontWeight: 600, lineHeight: 1 }}>{cc}</span>
+                      </Link>
+                      <button onClick={() => handleUpvote(p.id)}
+                        style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                          width: 52, height: 60, borderRadius: 10,
+                          border: isUpvoted ? '2px solid #0000FF' : '1px solid #e0e0e0',
+                          background: isUpvoted ? '#f0f0ff' : '#ffffff',
+                          color: isUpvoted ? '#0000FF' : '#21293c',
+                          padding: 0, gap: 4, cursor: 'pointer', transition: 'all 0.15s ease',
+                        }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="18 15 12 9 6 15" />
+                        </svg>
+                        <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1 }}>{p.upvotes}</span>
+                      </button>
                     </div>
                   </div>
-                  {/* Upvote + Comments — prominent like PH */}
-                  <div style={{ flexShrink: 0, display: 'flex', alignItems: 'stretch', gap: 0, marginTop: 6 }}>
-                    {/* Comments */}
-                    <Link href={`/project/${p.id}`} style={{
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                      width: 52, height: 60, color: '#6f7784', textDecoration: 'none', gap: 4,
-                    }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                      </svg>
-                      <span style={{ fontSize: 13, fontWeight: 600, lineHeight: 1 }}>{cc}</span>
-                    </Link>
-                    {/* Upvote */}
-                    <button onClick={() => handleUpvote(p.id)}
-                      style={{
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        width: 52, height: 60, borderRadius: 10,
-                        border: isUpvoted ? '2px solid #0000FF' : '1px solid #e0e0e0',
-                        background: isUpvoted ? '#f0f0ff' : '#ffffff',
-                        color: isUpvoted ? '#0000FF' : '#21293c',
-                        padding: 0, gap: 4, cursor: 'pointer', transition: 'all 0.15s ease',
-                      }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="18 15 12 9 6 15" />
-                      </svg>
-                      <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1 }}>{p.upvotes}</span>
-                    </button>
-                  </div>
+                  {/* Insert sponsored after #3 */}
+                  {i === 2 && renderSponsoredInline()}
                 </div>
               );
             })}
@@ -297,7 +269,6 @@ export default function Home() {
         )}
       </main>
 
-      {/* ── FOOTER ── */}
       <footer style={{ borderTop: '1px solid #e8e8e8', background: '#ffffff', padding: '20px 20px' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#6f7784' }}>
