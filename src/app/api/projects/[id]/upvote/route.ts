@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
 import { authenticateRequest } from '@/lib/auth';
+import { checkUpvoteLimit } from '@/lib/rateLimit';
 
 export async function POST(
   request: NextRequest,
@@ -56,6 +57,19 @@ export async function POST(
         action: 'removed',
         upvotes: project.upvotes - 1
       });
+    }
+
+    // Check upvote rate limit (only for adding new upvotes)
+    const rateLimitResult = await checkUpvoteLimit(handle);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { 
+          error: 'Rate limit exceeded',
+          limit: rateLimitResult.limit,
+          upgrade: `https://sonarbot.xyz${rateLimitResult.upgrade}`
+        },
+        { status: 429 }
+      );
     }
 
     // Add upvote

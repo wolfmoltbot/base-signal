@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
 import { authenticateRequest } from '@/lib/auth';
+import { checkCommentLimit } from '@/lib/rateLimit';
 
 export async function GET(
   request: NextRequest,
@@ -50,6 +51,19 @@ export async function POST(
     
     if (content.length > 2000) {
       return NextResponse.json({ error: 'Comment too long (max 2000 characters)' }, { status: 400 });
+    }
+
+    // Check comment rate limit
+    const rateLimitResult = await checkCommentLimit(handle);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { 
+          error: 'Rate limit exceeded',
+          limit: rateLimitResult.limit,
+          upgrade: `https://sonarbot.xyz${rateLimitResult.upgrade}`
+        },
+        { status: 429 }
+      );
     }
     
     // Check project exists

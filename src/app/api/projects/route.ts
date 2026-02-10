@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/db';
 import { validateApiKey } from '@/lib/auth';
+import { checkSubmissionLimit } from '@/lib/rateLimit';
 
 interface ProjectSubmission {
   name: string;
@@ -86,6 +87,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Valid API key required. Register at POST /api/register with your twitter_handle.' },
         { status: 401 }
+      );
+    }
+
+    // Check submission rate limit
+    const rateLimitResult = await checkSubmissionLimit(authedHandle);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { 
+          error: 'Rate limit exceeded',
+          limit: rateLimitResult.limit,
+          upgrade: `https://sonarbot.xyz${rateLimitResult.upgrade}`
+        },
+        { status: 429 }
       );
     }
 
