@@ -3,7 +3,38 @@ interface PaymentVerificationResult {
   from?: string;
   to?: string;
   amount?: string;
+  usdValue?: string;
   error?: string;
+}
+
+const MINIMUM_USD = 9.5;
+
+/**
+ * Fetch current $SNR price in USD from DexScreener
+ */
+async function getSnrPriceUsd(): Promise<number> {
+  const snrContract = '0xE1231f809124e4Aa556cD9d8c28CB33f02c75b07';
+  const res = await fetch(
+    `https://api.dexscreener.com/latest/dex/tokens/${snrContract}`,
+    { next: { revalidate: 60 } } // cache for 60s
+  );
+
+  if (!res.ok) {
+    throw new Error(`DexScreener API error: ${res.status}`);
+  }
+
+  const data = await res.json();
+  const pair = data.pairs?.find(
+    (p: any) =>
+      p.baseToken?.address?.toLowerCase() === snrContract.toLowerCase() &&
+      p.priceUsd
+  );
+
+  if (!pair?.priceUsd) {
+    throw new Error('Could not fetch $SNR price from DexScreener');
+  }
+
+  return parseFloat(pair.priceUsd);
 }
 
 /**
@@ -118,12 +149,33 @@ export async function verifyPayment(txHash: string): Promise<PaymentVerification
         error: `Invalid payment amount: ${amountTokens.toFixed(2)} $SNR`,
       };
     }
+
+    // Fetch live $SNR price and verify USD value >= $9.50
+    let priceUsd: number;
+    try {
+      priceUsd = await getSnrPriceUsd();
+    } catch (priceError) {
+      return {
+        valid: false,
+        error: `Could not verify $SNR price: ${priceError instanceof Error ? priceError.message : 'Unknown error'}`,
+      };
+    }
+
+    const usdValue = amountTokens * priceUsd;
+
+    if (usdValue < MINIMUM_USD) {
+      return {
+        valid: false,
+        error: `Insufficient payment. Sent ${amountTokens.toFixed(2)} $SNR (~$${usdValue.toFixed(2)}). Minimum required: $${MINIMUM_USD.toFixed(2)} (at current price $${priceUsd.toFixed(8)}/SNR, send at least ${Math.ceil(MINIMUM_USD / priceUsd).toLocaleString()} $SNR)`,
+      };
+    }
     
     return {
       valid: true,
       from: fromAddress,
       to: toAddress,
       amount: amountTokens.toFixed(2),
+      usdValue: usdValue.toFixed(2),
     };
     
   } catch (error) {

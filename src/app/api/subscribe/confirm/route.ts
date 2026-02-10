@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
       status: 'active',
       expires: expiryDate.toISOString(),
       amount_paid: verificationResult.amount,
+      usd_value: verificationResult.usdValue,
       from_address: verificationResult.from
     });
 

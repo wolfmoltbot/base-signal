@@ -91,15 +91,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch live $SNR price to show required amount
+    let snrPrice: number | null = null;
+    let snrAmount: string | null = null;
+    try {
+      const dexRes = await fetch(
+        `https://api.dexscreener.com/latest/dex/tokens/0xE1231f809124e4Aa556cD9d8c28CB33f02c75b07`
+      );
+      const dexData = await dexRes.json();
+      const pair = dexData.pairs?.find(
+        (p: any) =>
+          p.baseToken?.address?.toLowerCase() ===
+            '0xe1231f809124e4aa556cd9d8c28cb33f02c75b07' && p.priceUsd
+      );
+      if (pair?.priceUsd) {
+        snrPrice = parseFloat(pair.priceUsd);
+        snrAmount = Math.ceil(9.99 / snrPrice).toLocaleString();
+      }
+    } catch {
+      // Price fetch failed — still return instructions without amount
+    }
+
     return NextResponse.json({
       payment_address: paymentAddress,
-      price: '$9.99/month',
+      price_usd: '$9.99/month',
+      minimum_usd: '$9.50',
       payment_token: '$SNR',
-      payment_note: 'Priced at $9.99/month, paid in $SNR at market rate',
+      snr_price_usd: snrPrice ? `$${snrPrice.toFixed(8)}` : 'unavailable',
+      snr_amount_required: snrAmount ?? 'check price and send at least $9.50 worth',
       token_contract: '0xE1231f809124e4Aa556cD9d8c28CB33f02c75b07',
       chain: 'Base',
       duration: '30 days',
-      instructions: 'Send the equivalent of $9.99 in $SNR to the payment address, then call /api/subscribe/confirm with the tx hash.'
+      instructions: `Send ${snrAmount ? snrAmount + ' $SNR' : 'at least $9.50 worth of $SNR'} to the payment address, then call /api/subscribe/confirm with the tx hash.`
     });
   } catch (error) {
     console.error('Error getting payment instructions:', error);
