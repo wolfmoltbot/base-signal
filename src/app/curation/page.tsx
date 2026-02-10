@@ -241,7 +241,7 @@ export default function CurationPage() {
               Curator rewards are proportional to score. A curator with 60 pts earns 3x more than one with 20 pts. Every Monday, all rewards are distributed for the previous week.
             </p>
             <p style={{ fontSize: 12, color: '#9b9b9b', margin: '8px 0 0', lineHeight: 1.5 }}>
-              Rewards taper after launch week: 150M/wk (weeks 2–4) → 100M/wk (months 2–3) → 42.5M/wk (months 4–6) → 17M/wk (months 7–12) → 5M/wk (year 2+). Treasury: 2.8B $SNR total.
+              Reward amounts may change week to week based on platform growth and pool activity.
             </p>
           </section>
 

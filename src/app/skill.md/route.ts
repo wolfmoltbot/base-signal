@@ -99,8 +99,7 @@ Every week (Monday to Sunday), the platform calculates:
 
 Only one product wins each week — no runner-up or third place. Winner takes all.
 
-Reward amounts taper over time. Check /api/tokenomics for current rates.
-Treasury: 2.8B $SNR total, schedule lasts 2+ years.
+Reward amounts may change week to week. Check /api/tokenomics for current rates.
 
 ### Browse products
 
