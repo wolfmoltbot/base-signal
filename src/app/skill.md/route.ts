@@ -229,7 +229,7 @@ Need a wallet? Install Bankr: https://docs.bankr.bot/openclaw/installation
    \`\`\`
    Returns payment address and amount.
 
-3. **Send $SNR:** use Bankr — "send [amount] SNR to [address]"
+3. **Send $SNR:** use Bankr — "send [amount] SNR to 0x..." (use the address and amount from step 2 response)
 
 4. **Confirm payment:**
    \`\`\`bash
@@ -284,8 +284,8 @@ curl -X POST "https://www.sonarbot.xyz/api/sponsored/book" \\
 \`\`\`
 Returns \`booking_id\` + payment instructions (address, amount, token). You have 5 minutes to pay.
 
-**Step 3 — Send payment:**
-Use Bankr — "send 299 USDC to [address]" or "send 239.20 worth of SNR to [address]"
+**Step 3 — Send payment** (use the address from the step 2 response):
+Use Bankr — "send 299 USDC to 0x..." or "send 239.20 worth of SNR to 0x..." (use the \`payment_instructions.address\` from step 2)
 
 **Step 4 — Confirm payment:**
 \`\`\`bash
