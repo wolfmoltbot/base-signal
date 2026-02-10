@@ -111,12 +111,11 @@ export async function verifyPayment(txHash: string): Promise<PaymentVerification
       };
     }
     
-    // Verify minimum amount (1000 $SNR)
-    const minimumAmount = 1000;
-    if (amountTokens < minimumAmount) {
+    // Sanity check: amount must be positive
+    if (amountTokens <= 0) {
       return {
         valid: false,
-        error: `Insufficient payment amount. Expected: ${minimumAmount} $SNR, Got: ${amountTokens.toFixed(2)} $SNR`,
+        error: `Invalid payment amount: ${amountTokens.toFixed(2)} $SNR`,
       };
     }
     
