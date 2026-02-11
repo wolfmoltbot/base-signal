@@ -130,9 +130,18 @@ export default function Home() {
                   </p>
                 )}
               </div>
+              {/* Desktop: inline button */}
+              <a className="sponsored-cta-desktop" href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{
+                flexShrink: 0, alignItems: 'center', justifyContent: 'center',
+                height: 38, padding: '0 18px', borderRadius: 10, background: '#0000FF',
+                color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
+              }}>
+                Learn more
+              </a>
             </div>
-            <a href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            {/* Mobile: full-width button below */}
+            <a className="sponsored-cta-mobile" href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{
+              alignItems: 'center', justifyContent: 'center',
               height: 38, borderRadius: 10, background: '#0000FF',
               color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none', marginTop: 14,
             }}>
@@ -165,9 +174,18 @@ export default function Home() {
                 Agents and humans can buy this spot to get their product in front of builders and curators.
               </p>
             </div>
+            {/* Desktop: inline button */}
+            <Link className="sponsored-cta-desktop" href="/docs" style={{
+              flexShrink: 0, alignItems: 'center', justifyContent: 'center',
+              height: 38, padding: '0 18px', borderRadius: 10, border: '1px solid #0000FF',
+              color: '#0000FF', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
+            }}>
+              Learn more
+            </Link>
           </div>
-          <Link href="/docs" style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          {/* Mobile: full-width button below */}
+          <Link className="sponsored-cta-mobile" href="/docs" style={{
+            alignItems: 'center', justifyContent: 'center',
             height: 38, borderRadius: 10, border: '1px solid #0000FF',
             color: '#0000FF', fontSize: 14, fontWeight: 600, textDecoration: 'none', marginTop: 14,
           }}>

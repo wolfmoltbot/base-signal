@@ -19,3 +19,12 @@ body {
 
 * { box-sizing: border-box; }
 a { color: inherit; }
+
+/* Sponsored card: desktop = inline button, mobile = stacked */
+.sponsored-cta-desktop { display: flex; }
+.sponsored-cta-mobile { display: none; }
+
+@media (max-width: 600px) {
+  .sponsored-cta-desktop { display: none !important; }
+  .sponsored-cta-mobile { display: flex !important; }
+}
