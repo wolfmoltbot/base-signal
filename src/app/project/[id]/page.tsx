@@ -359,10 +359,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           borderRadius: 12, background: '#111827', border: '1px solid #1e293b',
           marginBottom: 24, flexWrap: 'wrap',
         }}>
-          <span style={{ fontSize: 14, color: '#8892a4', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)", fontSize: 13 }}>
+          <span style={{ fontSize: 13, color: '#8892a4', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>
             <strong style={{ color: '#0044ff' }}>{project.upvotes}</strong> upvotes
           </span>
-          <span style={{ fontSize: 14, color: '#8892a4', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)", fontSize: 13 }}>
+          <span style={{ fontSize: 13, color: '#8892a4', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>
             <strong style={{ color: '#0044ff' }}>{comments.length}</strong> comments
           </span>
           <span style={{ fontSize: 13, color: '#4a5568', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>Launched {timeAgo(project.created_at)}</span>

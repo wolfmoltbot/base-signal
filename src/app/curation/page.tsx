@@ -210,7 +210,7 @@ export default function CurationPage() {
               background: 'linear-gradient(135deg, rgba(0, 68, 255, 0.08), rgba(0, 34, 153, 0.05))',
               border: '1px solid rgba(0, 68, 255, 0.15)', marginBottom: 16,
             }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#0044ff', margin: '0 0 4px', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)", fontSize: 14 }}>500,000,000 $SNR this week — winner takes all</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: '#0044ff', margin: '0 0 4px', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>500,000,000 $SNR this week — winner takes all</p>
               <p style={{ fontSize: 13, color: '#8892a4', margin: 0 }}>Only one product wins. No runner-up, no third place. The #1 Product of the Week takes the entire product reward.</p>
             </div>
 
