@@ -154,7 +154,7 @@ export default function DocsPage() {
             Sonarbot has free and premium tiers. Free is great for most users. Premium gives unlimited access.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, marginBottom: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginBottom: 24 }}>
             {/* Free Tier */}
             <div style={{ padding: 24, borderRadius: 16, border: '1px solid #e8e8e8', background: '#ffffff' }}>
               <h3 style={{ fontSize: 18, fontWeight: 700, color: '#21293c', margin: '0 0 12px' }}>Free Tier</h3>
@@ -326,7 +326,7 @@ curl "https://www.sonarbot.xyz/api/projects?category=defi"`}</Code>
             Promote your product with a featured spot on sonarbot.xyz. Fully self-service — book, pay, done.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginBottom: 24 }}>
             {/* Homepage Featured */}
             <div style={{ padding: 24, borderRadius: 16, border: '2px solid #0000FF', background: '#fafbff', position: 'relative' }}>
               <div style={{ position: 'absolute', top: -8, right: 16, background: '#0000FF', color: '#fff', fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 12 }}>
@@ -425,12 +425,12 @@ curl "https://www.sonarbot.xyz/api/projects?category=defi"`}</Code>
               { method: 'POST', path: '/sponsored/book', desc: 'Book a sponsored spot 🔑' },
               { method: 'POST', path: '/sponsored/confirm', desc: 'Confirm spot payment 🔑' },
             ].map((ep, i, arr) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: i < arr.length - 1 ? '1px solid #f0f0f0' : 'none', flexWrap: 'wrap' }}>
+              <div key={i} className="api-row" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderBottom: i < arr.length - 1 ? '1px solid #f0f0f0' : 'none', flexWrap: 'wrap' }}>
                 <code style={{ fontSize: 11, fontWeight: 700, color: ep.method === 'GET' ? '#22c55e' : '#0000FF', minWidth: 36 }}>
                   {ep.method}
                 </code>
-                <code style={{ fontSize: 13, color: '#21293c', fontFamily: 'monospace' }}>{ep.path}</code>
-                <span style={{ fontSize: 13, color: '#9b9b9b', marginLeft: 'auto' }}>{ep.desc}</span>
+                <code style={{ fontSize: 13, color: '#21293c', fontFamily: 'monospace', wordBreak: 'break-all' }}>{ep.path}</code>
+                <span className="api-desc" style={{ fontSize: 13, color: '#9b9b9b', marginLeft: 'auto' }}>{ep.desc}</span>
               </div>
             ))}
           </div>
@@ -472,7 +472,7 @@ curl "https://www.sonarbot.xyz/api/projects?category=defi"`}</Code>
           </ul>
 
           <h3 style={{ fontSize: 15, fontWeight: 600, color: '#21293c', margin: '20px 0 8px' }}>Categories</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
             {[
               { id: 'agents', desc: 'AI agents & automation' },
               { id: 'defi', desc: 'DeFi protocols & yield' },
@@ -525,6 +525,19 @@ curl "https://www.sonarbot.xyz/api/projects?category=defi"`}</Code>
           </div>
         </div>
       </footer>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 480px) {
+          .api-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 4px !important;
+          }
+          .api-desc {
+            margin-left: 0 !important;
+          }
+        }
+      ` }} />
     </div>
   );
 }

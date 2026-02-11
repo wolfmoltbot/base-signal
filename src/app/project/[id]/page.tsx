@@ -277,7 +277,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           by <a href={`https://x.com/${project.submitted_by_twitter}`} target="_blank" rel="noopener noreferrer" style={{ color: '#6f7784', fontWeight: 500, textDecoration: 'none' }}>@{project.submitted_by_twitter}</a>
         </p>
 
-        <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+        <div className="action-buttons" style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
           {project.website_url && (
             <a href={project.website_url} target="_blank" rel="noopener noreferrer"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, height: 48, borderRadius: 24, border: '1px solid #e8e8e8', background: '#fff', fontSize: 16, fontWeight: 600, color: '#21293c', textDecoration: 'none' }}>
@@ -507,8 +507,8 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         padding: '16px 20px', paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
       }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap', minWidth: 0 }}>
               <span style={{ fontSize: 28, fontWeight: 800, color: '#21293c', lineHeight: 1 }}>#{dayRank}</span>
               <span style={{ fontSize: 13, color: '#6f7784' }}>Day Rank</span>
               <span style={{ fontSize: 13, color: '#6f7784' }}>·</span>
@@ -556,6 +556,11 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           }
           .project-sidebar {
             width: 100%;
+          }
+        }
+        @media (max-width: 400px) {
+          .action-buttons {
+            flex-direction: column !important;
           }
         }
       `}</style>

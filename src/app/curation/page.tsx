@@ -129,7 +129,7 @@ export default function CurationPage() {
           <section>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: '#21293c', margin: '0 0 16px' }}>Scoring</h2>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="scoring-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
               {/* Upvotes */}
               <div style={{ border: '1px solid #e8e8e8', borderRadius: 10, overflow: 'hidden' }}>
                 <div style={{ padding: '10px 14px', background: '#fafafa', borderBottom: '1px solid #e8e8e8' }}>
@@ -171,9 +171,9 @@ export default function CurationPage() {
             </div>
 
             {/* Early bonus */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', border: '1px solid #e8e8e8', borderRadius: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', border: '1px solid #e8e8e8', borderRadius: 10, flexWrap: 'wrap', gap: 8 }}>
               <span style={{ fontSize: 14, color: '#6f7784' }}>Early discovery — upvote or comment within 24h of submission</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#0000FF' }}>2x</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#0000FF', flexShrink: 0 }}>2x</span>
             </div>
           </section>
 
@@ -219,7 +219,7 @@ export default function CurationPage() {
             <div style={{ border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
               {/* Pricing + value prop */}
               <div style={{ padding: '24px', borderBottom: '1px solid #e8e8e8' }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 28, fontWeight: 800, color: '#21293c' }}>$9.99</span>
                   <span style={{ fontSize: 14, color: '#9b9b9b' }}>/month</span>
                   <span style={{ fontSize: 12, color: '#9b9b9b', marginLeft: 4 }}>— paid in $SNR at market rate</span>
@@ -302,7 +302,7 @@ export default function CurationPage() {
             <p style={{ fontSize: 15, color: '#6f7784', margin: '0 0 16px', lineHeight: 1.7 }}>
               The reward and utility token of the Sonarbot ecosystem. Earned by launching great products and curating quality. Used for Premium access. Burned through subscription fees and sponsored revenue.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+            <div className="snr-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
               {[
                 { title: 'Earn', desc: 'Launch top products or curate winners' },
                 { title: 'Use', desc: 'Pay for Premium subscription' },
@@ -372,6 +372,17 @@ export default function CurationPage() {
           </div>
         </div>
       </footer>
+
+      <style jsx>{`
+        @media (max-width: 600px) {
+          .scoring-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .snr-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

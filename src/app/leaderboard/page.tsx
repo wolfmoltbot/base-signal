@@ -133,7 +133,7 @@ export default function LeaderboardPage() {
           </p>
 
           {/* Week selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <button onClick={goToPrevWeek} style={{
               width: 36, height: 36, borderRadius: 8, border: '1px solid #e8e8e8', background: '#fff',
               display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
@@ -141,7 +141,7 @@ export default function LeaderboardPage() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6f7784" strokeWidth="2" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 18, fontWeight: 700, color: '#21293c' }}>
                 Week {selectedWeek}
               </span>
