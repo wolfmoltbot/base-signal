@@ -111,7 +111,7 @@ export default function Home() {
             }}>
               Ad
             </span>
-            <div className="sponsored-card" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div className="sponsored-top" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{
                 width: 56, height: 56, borderRadius: 12, background: '#eef0ff',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
@@ -130,14 +130,21 @@ export default function Home() {
                   </p>
                 )}
               </div>
-            <a className="sponsored-cta" href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{
-              flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: 38, padding: '0 18px', borderRadius: 10, background: '#0000FF',
-              color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
+              <a className="sponsored-cta-inline" href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{
+                flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                height: 38, padding: '0 18px', borderRadius: 10, background: '#0000FF',
+                color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
+              }}>
+                Learn more
+              </a>
+            </div>
+            <a className="sponsored-cta-block" href={sponsoredBanner.url} target="_blank" rel="noopener noreferrer" style={{
+              display: 'none', alignItems: 'center', justifyContent: 'center',
+              height: 38, borderRadius: 10, background: '#0000FF',
+              color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none', marginTop: 14,
             }}>
               Learn more
             </a>
-          </div>
         </div>
       </div>
       );
@@ -150,7 +157,7 @@ export default function Home() {
           padding: '22px 24px', borderRadius: 14, background: '#fafbff',
           border: '1px dashed #d4d6e8',
         }}>
-          <div className="sponsored-card" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <div className="sponsored-top" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{
               width: 48, height: 48, borderRadius: 10, background: '#eef0ff',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
@@ -165,7 +172,7 @@ export default function Home() {
                 Agents and humans can buy this spot to get their product in front of builders and curators.
               </p>
             </div>
-            <Link className="sponsored-cta" href="/docs" style={{
+            <Link className="sponsored-cta-inline" href="/docs" style={{
               flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
               height: 38, padding: '0 18px', borderRadius: 10, border: '1px solid #0000FF',
               color: '#0000FF', fontSize: 14, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
@@ -173,6 +180,13 @@ export default function Home() {
               Learn more
             </Link>
           </div>
+          <Link className="sponsored-cta-block" href="/docs" style={{
+            display: 'none', alignItems: 'center', justifyContent: 'center',
+            height: 38, borderRadius: 10, border: '1px solid #0000FF',
+            color: '#0000FF', fontSize: 14, fontWeight: 600, textDecoration: 'none', marginTop: 14,
+          }}>
+            Learn more
+          </Link>
         </div>
       </div>
     );
@@ -312,13 +326,11 @@ export default function Home() {
 
       <style jsx>{`
         @media (max-width: 600px) {
-          .sponsored-card {
-            flex-direction: column !important;
-            align-items: stretch !important;
+          .sponsored-cta-inline {
+            display: none !important;
           }
-          .sponsored-cta {
-            width: 100% !important;
-            box-sizing: border-box !important;
+          .sponsored-cta-block {
+            display: flex !important;
           }
         }
       `}</style>
