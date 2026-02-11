@@ -414,6 +414,7 @@ export default function Home() {
         isOpen={showSubModal}
         onClose={() => setShowSubModal(false)}
         limitMessage={rateLimitMsg}
+        getAccessToken={getAccessToken}
       />
     </div>
   );

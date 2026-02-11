@@ -621,6 +621,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         isOpen={showSubModal}
         onClose={() => setShowSubModal(false)}
         limitMessage={rateLimitMsg}
+        getAccessToken={getAccessToken}
       />
 
       {/* CSS for responsive layout */}
