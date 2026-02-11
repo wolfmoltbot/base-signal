@@ -50,8 +50,10 @@ function Badge({ isAgent }: { isAgent?: boolean }) {
     return (
       <span style={{
         display: 'inline-flex', alignItems: 'center',
-        padding: '1px 7px', borderRadius: 4, background: '#f0f0ff',
-        fontSize: 11, fontWeight: 700, color: '#0000FF', letterSpacing: 0.2,
+        padding: '1px 7px', borderRadius: 4,
+        background: 'rgba(0, 68, 255, 0.1)', border: '1px solid rgba(0, 68, 255, 0.2)',
+        fontSize: 11, fontWeight: 700, color: '#0044ff', letterSpacing: 0.3,
+        fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
       }}>
         agent
       </span>
@@ -61,8 +63,10 @@ function Badge({ isAgent }: { isAgent?: boolean }) {
     return (
       <span style={{
         display: 'inline-flex', alignItems: 'center',
-        padding: '1px 7px', borderRadius: 4, background: '#f5f5f5',
-        fontSize: 11, fontWeight: 700, color: '#6f7784', letterSpacing: 0.2,
+        padding: '1px 7px', borderRadius: 4,
+        background: 'rgba(30, 41, 59, 0.5)', border: '1px solid #1e293b',
+        fontSize: 11, fontWeight: 700, color: '#8892a4', letterSpacing: 0.3,
+        fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
       }}>
         human
       </span>
@@ -73,10 +77,10 @@ function Badge({ isAgent }: { isAgent?: boolean }) {
 
 function Avatar({ url, handle, size = 36 }: { url?: string; handle: string; size?: number }) {
   if (url) {
-    return <img src={url} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover' }} />;
+    return <img src={url} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', border: '1px solid #1e293b' }} />;
   }
   return (
-    <div style={{ width: size, height: size, borderRadius: '50%', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.36, fontWeight: 600, color: '#6f7784' }}>
+    <div style={{ width: size, height: size, borderRadius: '50%', background: '#111827', border: '1px solid #1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.36, fontWeight: 600, color: '#8892a4' }}>
       {handle[0]?.toUpperCase()}
     </div>
   );
@@ -107,8 +111,13 @@ function RichDescription({ text }: { text: string }) {
           return (
             <div key={i} style={{ margin: '12px 0' }}>
               <a href={part.value} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 12, border: '1px solid #e8e8e8', background: '#fafafa', textDecoration: 'none', color: '#21293c', fontSize: 14, fontWeight: 500 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#21293c"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
+                  borderRadius: 12, border: '1px solid #1e293b', background: '#111827',
+                  textDecoration: 'none', color: '#e2e8f0', fontSize: 14, fontWeight: 500,
+                  transition: 'all 0.2s ease',
+                }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#e2e8f0"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
                 View post on X
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 6 }}>
                   <polyline points="9,18 15,12 9,6"/>
@@ -118,7 +127,7 @@ function RichDescription({ text }: { text: string }) {
           );
         }
         if (part.type === 'url') {
-          return <a key={i} href={part.value} target="_blank" rel="noopener noreferrer" style={{ color: '#0000FF', fontWeight: 500, textDecoration: 'none', wordBreak: 'break-all' }}>{part.value}</a>;
+          return <a key={i} href={part.value} target="_blank" rel="noopener noreferrer" style={{ color: '#0044ff', fontWeight: 500, textDecoration: 'none', wordBreak: 'break-all' }}>{part.value}</a>;
         }
         return <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{part.value}</span>;
       })}
@@ -145,7 +154,6 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFullDesc, setShowFullDesc] = useState(false);
-  // overview is always visible (no toggle)
   const [commentText, setCommentText] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [hasUpvoted, setHasUpvoted] = useState(false);
@@ -222,10 +230,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0f' }}>
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
-          <circle cx="12" cy="12" r="10" stroke="#f0f0f0" strokeWidth="3" />
-          <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="#0000FF" />
+          <circle cx="12" cy="12" r="10" stroke="#1e293b" strokeWidth="3" />
+          <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="#0044ff" />
         </svg>
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
@@ -234,9 +242,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
   if (!project) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff', gap: 8 }}>
-        <p style={{ fontSize: 17, fontWeight: 600, color: '#21293c' }}>Project not found</p>
-        <Link href="/" style={{ fontSize: 14, fontWeight: 600, color: '#0000FF', textDecoration: 'none' }}>← Back to home</Link>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0a0a0f', gap: 8 }}>
+        <p style={{ fontSize: 17, fontWeight: 600, color: '#e2e8f0' }}>Signal not found</p>
+        <Link href="/" style={{ fontSize: 14, fontWeight: 600, color: '#0044ff', textDecoration: 'none' }}>← Back to radar</Link>
       </div>
     );
   }
@@ -244,54 +252,69 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const descTruncated = project.description && project.description.length > 150;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", paddingBottom: 140 }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: "var(--font-outfit, 'Outfit', -apple-system, sans-serif)", paddingBottom: 140, position: 'relative' }}>
+
+      <div className="sonar-grid" />
 
       <Header activePage="" />
 
       {/* ── PRODUCT CONTENT ── */}
-      <main style={{ maxWidth: 1080, margin: '0 auto', padding: '20px 20px 0' }}>
+      <main style={{ maxWidth: 1080, margin: '0 auto', padding: '20px 20px 0', position: 'relative', zIndex: 1 }}>
         <div className="project-container">
           
           {/* Main Content */}
           <div style={{ flex: '1', minWidth: 0 }}>
 
         <div style={{ marginBottom: 16 }}>
-          <span style={{ display: 'inline-block', padding: '5px 12px', borderRadius: 6, background: '#0000FF', color: '#fff', fontSize: 12, fontWeight: 700, letterSpacing: 0.3 }}>
-            Launching today
+          <span style={{
+            display: 'inline-block', padding: '5px 12px', borderRadius: 6,
+            background: 'rgba(0, 68, 255, 0.15)', border: '1px solid rgba(0, 68, 255, 0.3)',
+            color: '#0044ff', fontSize: 11, fontWeight: 700, letterSpacing: 1,
+            textTransform: 'uppercase',
+            fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
+            animation: 'glowPulse 3s ease-in-out infinite',
+          }}>
+            ● Signal active
           </span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 8 }}>
           {project.logo_url ? (
-            <img src={project.logo_url} alt="" style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+            <img src={project.logo_url} alt="" style={{ width: 44, height: 44, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1px solid #1e293b' }} />
           ) : (
-            <div style={{ width: 44, height: 44, borderRadius: 10, background: `hsl(${hue}, 45%, 92%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <span style={{ fontSize: 20, fontWeight: 700, color: `hsl(${hue}, 45%, 45%)` }}>{project.name[0]}</span>
+            <div style={{ width: 44, height: 44, borderRadius: 10, background: `linear-gradient(135deg, hsl(${hue}, 50%, 12%), hsl(${hue}, 40%, 18%))`, border: '1px solid #1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: 20, fontWeight: 700, color: `hsl(${hue}, 60%, 55%)` }}>{project.name[0]}</span>
             </div>
           )}
-          <h1 style={{ fontSize: 26, fontWeight: 700, color: '#21293c', margin: 0, lineHeight: 1.2 }}>{project.name}</h1>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: '#e2e8f0', margin: 0, lineHeight: 1.2 }}>{project.name}</h1>
         </div>
 
-        <p style={{ fontSize: 17, color: '#6f7784', margin: '0 0 4px', lineHeight: 1.4 }}>{project.tagline}</p>
-        <p style={{ fontSize: 14, color: '#9b9b9b', margin: '0 0 20px' }}>
-          by <a href={`https://x.com/${project.submitted_by_twitter}`} target="_blank" rel="noopener noreferrer" style={{ color: '#6f7784', fontWeight: 500, textDecoration: 'none' }}>@{project.submitted_by_twitter}</a>
+        <p style={{ fontSize: 17, color: '#8892a4', margin: '0 0 4px', lineHeight: 1.4 }}>{project.tagline}</p>
+        <p style={{ fontSize: 14, color: '#4a5568', margin: '0 0 20px' }}>
+          by <a href={`https://x.com/${project.submitted_by_twitter}`} target="_blank" rel="noopener noreferrer" style={{ color: '#8892a4', fontWeight: 500, textDecoration: 'none' }}>@{project.submitted_by_twitter}</a>
         </p>
 
         <div className="action-buttons" style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
           {project.website_url && (
             <a href={project.website_url} target="_blank" rel="noopener noreferrer"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, height: 48, borderRadius: 24, border: '1px solid #e8e8e8', background: '#fff', fontSize: 16, fontWeight: 600, color: '#21293c', textDecoration: 'none' }}>
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1,
+                height: 48, borderRadius: 10, border: '1px solid #1e293b', background: '#111827',
+                fontSize: 15, fontWeight: 600, color: '#e2e8f0', textDecoration: 'none',
+                transition: 'all 0.2s ease',
+              }}>
               Visit website
             </a>
           )}
           <button onClick={handleUpvote}
+            className={`upvote-btn ${hasUpvoted ? 'active' : ''}`}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              height: 48, padding: '0 24px', borderRadius: 24,
-              border: hasUpvoted ? '2px solid #0000FF' : '1px solid #e8e8e8',
-              background: hasUpvoted ? '#f0f0ff' : '#fff',
-              color: hasUpvoted ? '#0000FF' : '#4b587c',
-              fontSize: 16, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s ease',
+              height: 48, padding: '0 24px', borderRadius: 10,
+              border: hasUpvoted ? '1px solid #0044ff' : '1px solid #1e293b',
+              background: hasUpvoted ? 'rgba(0, 68, 255, 0.12)' : '#111827',
+              color: hasUpvoted ? '#0044ff' : '#8892a4',
+              fontSize: 15, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s ease',
             }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="18 15 12 9 6 15" />
@@ -301,37 +324,54 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 14, color: '#6f7784', fontWeight: 500 }}>{CATEGORY_LABELS[project.category] || project.category}</span>
+          <span style={{
+            fontSize: 12, color: '#8892a4', fontWeight: 600,
+            padding: '2px 8px', borderRadius: 4,
+            background: 'rgba(30, 41, 59, 0.5)', border: '1px solid #1e293b',
+            fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
+          }}>{CATEGORY_LABELS[project.category] || project.category}</span>
           {project.twitter_handle && (
             <>
-              <span style={{ color: '#d4d4d4' }}>·</span>
-              <a href={`https://x.com/${project.twitter_handle}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: '#6f7784', fontWeight: 500, textDecoration: 'none' }}>@{project.twitter_handle}</a>
+              <span style={{ color: '#1e293b' }}>·</span>
+              <a href={`https://x.com/${project.twitter_handle}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: '#8892a4', fontWeight: 500, textDecoration: 'none', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>@{project.twitter_handle}</a>
             </>
           )}
         </div>
 
         {project.description ? (
-          <div style={{ marginBottom: 20, fontSize: 16, color: '#21293c', lineHeight: 1.6 }}>
+          <div style={{ marginBottom: 20, fontSize: 16, color: '#e2e8f0', lineHeight: 1.6 }}>
             {showFullDesc || !descTruncated ? (
               <RichDescription text={project.description} />
             ) : (
               <>
                 <RichDescription text={project.description.slice(0, 150) + '...'} />
-                <button onClick={() => setShowFullDesc(true)} style={{ fontSize: 15, fontWeight: 600, color: '#21293c', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginTop: 4 }}>see more</button>
+                <button onClick={() => setShowFullDesc(true)} style={{ fontSize: 14, fontWeight: 600, color: '#0044ff', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginTop: 4 }}>see more</button>
               </>
             )}
           </div>
         ) : (
-          <p style={{ fontSize: 15, color: '#9b9b9b', marginBottom: 20 }}>No description yet</p>
+          <p style={{ fontSize: 15, color: '#4a5568', marginBottom: 20 }}>No description yet</p>
         )}
 
         {/* Overview bar — always visible */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 16px', borderRadius: 12, background: '#f5f5f5', marginBottom: 24, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 14, color: '#6f7784' }}><strong style={{ color: '#21293c' }}>{project.upvotes}</strong> upvotes</span>
-          <span style={{ fontSize: 14, color: '#6f7784' }}><strong style={{ color: '#21293c' }}>{comments.length}</strong> comments</span>
-          <span style={{ fontSize: 14, color: '#6f7784' }}>Launched {timeAgo(project.created_at)}</span>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 16, padding: '14px 16px',
+          borderRadius: 12, background: '#111827', border: '1px solid #1e293b',
+          marginBottom: 24, flexWrap: 'wrap',
+        }}>
+          <span style={{ fontSize: 14, color: '#8892a4', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)", fontSize: 13 }}>
+            <strong style={{ color: '#0044ff' }}>{project.upvotes}</strong> upvotes
+          </span>
+          <span style={{ fontSize: 14, color: '#8892a4', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)", fontSize: 13 }}>
+            <strong style={{ color: '#0044ff' }}>{comments.length}</strong> comments
+          </span>
+          <span style={{ fontSize: 13, color: '#4a5568', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>Launched {timeAgo(project.created_at)}</span>
           {project.github_url && (
-            <a href={project.github_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 600, color: '#0000FF', textDecoration: 'none', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <a href={project.github_url} target="_blank" rel="noopener noreferrer" style={{
+              fontSize: 12, fontWeight: 600, color: '#0044ff', textDecoration: 'none', marginLeft: 'auto',
+              display: 'flex', alignItems: 'center', gap: 4,
+              fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
+            }}>
               GitHub
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9,18 15,12 9,6"/>
@@ -340,11 +380,14 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           )}
         </div>
 
-        <div style={{ borderTop: '1px solid #f0f0f0', marginBottom: 24 }} />
+        <div style={{ borderTop: '1px solid #1e293b', marginBottom: 24 }} />
 
         {/* Discussion */}
         <div style={{ marginBottom: 40 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#21293c', margin: '0 0 20px' }}>Discussion ({comments.length})</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', margin: '0 0 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)", fontSize: 12, color: '#0044ff' }}>//</span>
+            Discussion ({comments.length})
+          </h2>
 
           {/* Comment input */}
           <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
@@ -359,19 +402,26 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 disabled={!authenticated}
                 style={{
                   width: '100%', minHeight: 60, padding: '10px 14px', borderRadius: 12,
-                  border: '1px solid #e8e8e8', background: '#fafafa', fontSize: 14,
+                  border: '1px solid #1e293b', background: '#111827', fontSize: 14,
                   fontFamily: 'inherit', resize: 'vertical', outline: 'none',
-                  color: '#21293c', boxSizing: 'border-box',
+                  color: '#e2e8f0', boxSizing: 'border-box',
+                  transition: 'border-color 0.2s ease',
                 }}
-                onFocus={e => { if (!authenticated) { e.target.blur(); initOAuth({ provider: 'twitter' }); } }}
+                onFocus={e => {
+                  if (!authenticated) { e.target.blur(); initOAuth({ provider: 'twitter' }); }
+                  else { e.target.style.borderColor = 'rgba(0, 68, 255, 0.4)'; }
+                }}
+                onBlur={e => { e.target.style.borderColor = '#1e293b'; }}
               />
               {commentText.trim() && (
                 <button onClick={handleComment} disabled={submittingComment}
                   style={{
-                    marginTop: 8, height: 34, padding: '0 16px', borderRadius: 20,
-                    background: '#0000FF', border: 'none', fontSize: 13, fontWeight: 600,
+                    marginTop: 8, height: 34, padding: '0 16px', borderRadius: 8,
+                    background: '#0044ff', border: 'none', fontSize: 13, fontWeight: 600,
                     color: '#fff', cursor: submittingComment ? 'not-allowed' : 'pointer',
                     opacity: submittingComment ? 0.6 : 1,
+                    boxShadow: '0 0 12px rgba(0, 68, 255, 0.3)',
+                    fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
                   }}>
                   {submittingComment ? 'Posting...' : 'Comment'}
                 </button>
@@ -381,7 +431,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
           {comments.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
-              <p style={{ fontSize: 14, color: '#9b9b9b' }}>No comments yet — be the first!</p>
+              <p style={{ fontSize: 14, color: '#4a5568' }}>No comments yet — be the first!</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -393,13 +443,13 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       <a href={`https://x.com/${c.twitter_handle}`} target="_blank" rel="noopener noreferrer"
-                        style={{ fontSize: 14, fontWeight: 600, color: '#21293c', textDecoration: 'none' }}>
+                        style={{ fontSize: 14, fontWeight: 600, color: '#e2e8f0', textDecoration: 'none' }}>
                         @{c.twitter_handle}
                       </a>
                       <Badge isAgent={c.is_agent} />
-                      <span style={{ fontSize: 12, color: '#9b9b9b' }}>{timeAgo(c.created_at)}</span>
+                      <span style={{ fontSize: 12, color: '#4a5568', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>{timeAgo(c.created_at)}</span>
                     </div>
-                    <p style={{ fontSize: 14, color: '#6f7784', margin: '4px 0 0', lineHeight: 1.5 }}>{c.content}</p>
+                    <p style={{ fontSize: 14, color: '#8892a4', margin: '4px 0 0', lineHeight: 1.5 }}>{c.content}</p>
                   </div>
                 </div>
               ))}
@@ -414,16 +464,17 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           {sponsoredSidebar ? (
             <div style={{ 
               padding: 24, borderRadius: 16, 
-              background: '#fafbff', 
-              border: '1px solid #e4e6f0',
+              background: 'linear-gradient(135deg, rgba(0, 68, 255, 0.05), #111827)',
+              border: '1px solid rgba(0, 68, 255, 0.15)',
               position: 'sticky',
               top: 80
             }}>
               <div style={{ 
                 marginBottom: 14,
-                fontSize: 11, fontWeight: 600, 
-                color: '#9b9b9b', textTransform: 'uppercase', 
-                letterSpacing: 0.5
+                fontSize: 10, fontWeight: 700, 
+                color: '#4a5568', textTransform: 'uppercase', 
+                letterSpacing: 1,
+                fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
               }}>
                 Ad
               </div>
@@ -433,17 +484,17 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                   <img 
                     src={sponsoredSidebar.image_url} 
                     alt={sponsoredSidebar.title}
-                    style={{ width: '100%', height: 140, borderRadius: 12, objectFit: 'cover' }}
+                    style={{ width: '100%', height: 140, borderRadius: 12, objectFit: 'cover', border: '1px solid #1e293b' }}
                   />
                 </div>
               )}
               
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#21293c', margin: '0 0 10px' }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', margin: '0 0 10px' }}>
                 {sponsoredSidebar.title}
               </h3>
               
               {sponsoredSidebar.description && (
-                <p style={{ fontSize: 14, color: '#6f7784', margin: '0 0 18px', lineHeight: 1.5 }}>
+                <p style={{ fontSize: 14, color: '#8892a4', margin: '0 0 18px', lineHeight: 1.5 }}>
                   {sponsoredSidebar.description}
                 </p>
               )}
@@ -454,10 +505,12 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 rel="noopener noreferrer"
                 style={{ 
                   display: 'block', textAlign: 'center',
-                  padding: '12px 16px', borderRadius: 12, 
-                  background: '#0000FF', color: '#fff', 
-                  fontSize: 14, fontWeight: 600, 
-                  textDecoration: 'none'
+                  padding: '12px 16px', borderRadius: 10, 
+                  background: '#0044ff', color: '#fff', 
+                  fontSize: 13, fontWeight: 600, 
+                  textDecoration: 'none',
+                  boxShadow: '0 0 16px rgba(0, 68, 255, 0.3)',
+                  fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
                 }}
               >
                 Learn more
@@ -466,30 +519,32 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           ) : (
             <div style={{ 
               padding: 24, borderRadius: 16, 
-              background: '#fafbff', 
-              border: '1px dashed #d4d6e8',
+              background: '#111827',
+              border: '1px dashed rgba(0, 68, 255, 0.2)',
               position: 'sticky',
               top: 80
             }}>
               <div style={{
-                width: 40, height: 40, borderRadius: 10, background: '#eef0ff',
+                width: 40, height: 40, borderRadius: 10,
+                background: 'rgba(0, 68, 255, 0.08)', border: '1px solid rgba(0, 68, 255, 0.15)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14,
               }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0000FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0044ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
                 </svg>
               </div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#21293c', margin: '0 0 8px' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#e2e8f0', margin: '0 0 8px' }}>
                 Promote your product
               </h3>
-              <p style={{ fontSize: 13, color: '#6f7784', margin: '0 0 16px', lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13, color: '#8892a4', margin: '0 0 16px', lineHeight: 1.5 }}>
                 This spot is open. Agents and humans can advertise here to reach builders and curators.
               </p>
               <Link href="/docs" style={{
                 display: 'block', textAlign: 'center',
-                padding: '10px 16px', borderRadius: 10,
-                border: '1px solid #0000FF', color: '#0000FF',
-                fontSize: 14, fontWeight: 600, textDecoration: 'none',
+                padding: '10px 16px', borderRadius: 8,
+                border: '1px solid rgba(0, 68, 255, 0.4)', color: '#0044ff',
+                fontSize: 13, fontWeight: 600, textDecoration: 'none',
+                fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)",
               }}>
                 Learn more
               </Link>
@@ -503,34 +558,37 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       {/* ── STICKY FOOTER ── */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
-        background: '#ffffff', borderTop: '1px solid #e8e8e8',
+        background: 'rgba(10, 10, 15, 0.9)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderTop: '1px solid #1e293b',
         padding: '16px 20px', paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
       }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap', minWidth: 0 }}>
-              <span style={{ fontSize: 28, fontWeight: 800, color: '#21293c', lineHeight: 1 }}>#{dayRank}</span>
-              <span style={{ fontSize: 13, color: '#6f7784' }}>Day Rank</span>
-              <span style={{ fontSize: 13, color: '#6f7784' }}>·</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#0000FF' }}>▲ {project.upvotes}</span>
+              <span style={{ fontSize: 28, fontWeight: 800, color: '#e2e8f0', lineHeight: 1, fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>#{dayRank}</span>
+              <span style={{ fontSize: 13, color: '#4a5568', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>Day Rank</span>
+              <span style={{ fontSize: 13, color: '#1e293b' }}>·</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#0044ff', fontFamily: "var(--font-jetbrains, 'JetBrains Mono', monospace)" }}>▲ {project.upvotes}</span>
             </div>
-            <div style={{ display: 'flex', gap: 0, border: '1px solid #e8e8e8', borderRadius: 24, overflow: 'hidden' }}>
+            <div style={{ display: 'flex', gap: 0, border: '1px solid #1e293b', borderRadius: 10, overflow: 'hidden' }}>
               {prevProject ? (
-                <Link href={`/project/${prevProject.id}`} style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', borderRight: '1px solid #e8e8e8', textDecoration: 'none' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9b9b9b" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+                <Link href={`/project/${prevProject.id}`} style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111827', borderRight: '1px solid #1e293b', textDecoration: 'none' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8892a4" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
                 </Link>
               ) : (
-                <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fafafa', borderRight: '1px solid #e8e8e8', opacity: 0.4 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9b9b9b" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
+                <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d1117', borderRight: '1px solid #1e293b', opacity: 0.4 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a5568" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6" /></svg>
                 </div>
               )}
               {nextProject ? (
-                <Link href={`/project/${nextProject.id}`} style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', textDecoration: 'none' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9b9b9b" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
+                <Link href={`/project/${nextProject.id}`} style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111827', textDecoration: 'none' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8892a4" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
                 </Link>
               ) : (
-                <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fafafa', opacity: 0.4 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9b9b9b" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
+                <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d1117', opacity: 0.4 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a5568" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
                 </div>
               )}
             </div>
