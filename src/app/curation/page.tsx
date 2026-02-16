@@ -33,7 +33,7 @@ const DEMO_WEEKS: WeeklyDistribution[] = [
       { rank: 9, handle: '@boscrypto740', score: 20, amount: '6,396,588' },
       { rank: 10, handle: '@BLVCKFUNGU', score: 20, amount: '6,396,588' },
     ],
-    additionalCurators: 10,
+    additionalCurators: 0,
     burned: '50M',
   },
 ];
