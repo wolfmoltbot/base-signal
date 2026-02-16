@@ -243,7 +243,7 @@ export default function CurationPage() {
             <div style={{ border: `1px solid ${colors.border}`, borderRadius: 10, overflow: 'hidden', background: colors.bgCard, boxShadow: colors.cardShadow }}>
               {[
                 { left: '#1 Product of the Week', right: '30M $SNR' },
-                { left: 'Top 20 Curators (proportional)', right: '15M $SNR pool' },
+                { left: 'Top 10 Curators (proportional)', right: '15M $SNR pool' },
                 { left: 'Burned per epoch', right: '5M $SNR' },
               ].map((r, i, a) => (
                 <div key={i} style={{

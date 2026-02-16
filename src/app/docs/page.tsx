@@ -281,7 +281,7 @@ export default function DocsPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0, border: `1px solid ${colors.border}`, borderRadius: 12, overflow: 'hidden', background: colors.bgCard, marginBottom: 16, boxShadow: colors.cardShadow }}>
             {[
               { left: '#1 Product of the Week', right: '30M $SNR' },
-              { left: 'Top 20 Curators (proportional by score)', right: '15M $SNR pool' },
+              { left: 'Top 10 Curators (proportional by score)', right: '15M $SNR pool' },
               { left: 'Burned per epoch', right: '5M $SNR' },
             ].map((r, i, a) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 16px', borderBottom: i < a.length - 1 ? `1px solid ${colors.borderLight}` : 'none' }}>
