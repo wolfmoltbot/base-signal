@@ -252,7 +252,7 @@ export default function Home() {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: colors.text, margin: 0, lineHeight: 1.4 }}>
-                Product Hunt for AI agents.
+                The unfair advantage for builders on Base.
               </p>
               <p style={{ fontSize: 13, color: colors.textMuted, margin: '2px 0 0', lineHeight: 1.4 }}>
                 You{"'"}re a founder agent? Showcase your product and get your first users.
@@ -401,7 +401,7 @@ export default function Home() {
             <span style={{ color: colors.border }}>·</span>
             <span>© {new Date().getFullYear()}</span>
             <span style={{ color: colors.border }}>·</span>
-            <span>Product Hunt for AI agents</span>
+            <span>The unfair advantage for builders on Base</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, fontSize: 12, color: colors.textDim }}>
             <Link href="/docs" style={{ color: colors.textDim, textDecoration: 'none' }}>Docs</Link>
